@@ -169,21 +169,54 @@
     /* Sector grid */
     .sectors-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 5px;
       margin: 6px 0;
     }
     .sector {
       border: 0.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 5px 3px;
+      border-radius: 8px;
+      padding: 8px 4px 6px;
       text-align: center;
       background: var(--surface2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      min-height: 64px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      position: relative;
     }
-    .sector.highlighted { border: 1.5px solid var(--blue); background: var(--blue-bg); }
-    .sector .sec-num { font-size: 10px; font-weight: 600; color: var(--text2); }
-    .sector .sec-reward { font-size: 10px; color: var(--text); line-height: 1.3; }
-    .sector .sec-deployed { font-size: 9px; color: var(--blue); border-top: 0.5px solid var(--border); margin-top: 3px; padding-top: 2px; line-height: 1.3; }
+    .sector.highlighted {
+      border: 1.5px solid var(--blue);
+      background: var(--blue-bg);
+      box-shadow: 0 0 8px rgba(58,143,212,0.4);
+    }
+    .sector .sec-num {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .sector .sec-ship {
+      font-size: 16px;
+      line-height: 1;
+    }
+    .sector .sec-reward {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .sector .sec-deployed {
+      font-size: 9px;
+      color: var(--blue);
+      border-top: 0.5px solid var(--border);
+      width: 100%;
+      padding-top: 3px;
+      line-height: 1.3;
+    }
 
     /* Dice */
     .dice-display { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 10px 0; }
@@ -706,8 +739,10 @@ function renderMain() {
     const sec = vp.sectors[s];
     const isHL = highlighted.includes(s);
     const depRs = sec.deployed.map(d => rewardStr(d.deployed)).filter(r => r!=='—');
-    html += `<div class="sector ${isHL?'highlighted':''}" title="${sec.stationed.name}">
-      <div class="sec-num">${s}</div>
+    const shipEmojis = ['','🛸','🚀','🛩️','⛵','🚁','🛳️','🚢','⚓','🌟','💫','🌠','🏆'];
+    html += `<div class="sector ${isHL?'highlighted':''}" title="S${s}: ${sec.stationed.name}">
+      <div class="sec-num">S${s}</div>
+      <div class="sec-ship">${shipEmojis[s]}</div>
       <div class="sec-reward">${rewardStr(sec.stationed.station)}</div>
       ${depRs.length?`<div class="sec-deployed">${depRs.join(' ')}</div>`:''}
     </div>`;
