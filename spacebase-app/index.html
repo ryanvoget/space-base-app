@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0e1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Space Base">
+  <meta name="description" content="Pass-and-play Space Base board game">
+
+  <!-- iOS home screen icons (generate these from your icon) -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <link rel="manifest" href="manifest.json">
+  <title>Space Base</title>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --bg: #0a0e1a;
+      --surface: #131929;
+      --surface2: #1c2438;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+      --text: #e8eaf0;
+      --text2: #8a93a8;
+      --blue: #3a8fd4;
+      --blue-bg: rgba(58,143,212,0.15);
+      --gold: #c9933a;
+      --gold-bg: rgba(201,147,58,0.15);
+      --green: #4a9e6a;
+      --green-bg: rgba(74,158,106,0.15);
+      --purple: #7a5fc9;
+      --purple-bg: rgba(122,95,201,0.15);
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    #app {
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Screens */
+    .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+    .screen.active { display: flex; }
+
+    /* Scrollable content area */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 12px;
+    }
+
+    /* Typography */
+    h1 { font-size: 22px; font-weight: 600; }
+    h2 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    p  { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+    /* Cards / surfaces */
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .btn.primary:active { background: #2a7abf; }
+    .btn.block { width: 100%; }
+    .btn.sm { padding: 6px 12px; font-size: 13px; }
+    .btn:disabled { opacity: 0.35; pointer-events: none; }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge.blue   { background: var(--blue-bg);   color: var(--blue);   }
+    .badge.gold   { background: var(--gold-bg);   color: var(--gold);   }
+    .badge.green  { background: var(--green-bg);  color: var(--green);  }
+    .badge.purple { background: var(--purple-bg); color: var(--purple); }
+
+    /* Stat row */
+    .stat-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .stat-box {
+      flex: 1;
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .stat-box .label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-box .value { font-size: 22px; font-weight: 600; line-height: 1; }
+
+    /* Player tabs */
+    #player-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 10px 12px 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    #player-tabs::-webkit-scrollbar { display: none; }
+    .player-tab {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 20px;
+      border: 0.5px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .player-tab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+    /* Banner */
+    #active-player-banner {
+      padding: 8px 12px;
+      background: var(--surface);
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Sector grid */
+    .sectors-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      margin: 6px 0;
+    }
+    .sector {
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 5px 3px;
+      text-align: center;
+      background: var(--surface2);
+    }
+    .sector.highlighted { border: 1.5px solid var(--blue); background: var(--blue-bg); }
+    .sector .sec-num { font-size: 10px; font-weight: 600; color: var(--text2); }
+    .sector .sec-reward { font-size: 10px; color: var(--text); line-height: 1.3; }
+    .sector .sec-deployed { font-size: 9px; color: var(--blue); border-top: 0.5px solid var(--border); margin-top: 3px; padding-top: 2px; line-height: 1.3; }
+
+    /* Dice */
+    .dice-display { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 10px 0; }
+    .die {
+      width: 52px; height: 52px;
+      border: 1.5px solid var(--border2);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 700;
+      background: var(--surface2);
+    }
+
+    /* Shipyard cards */
+    .shipyard-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      background: var(--surface2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+    }
+    .sc-info { flex: 1; min-width: 0; }
+    .sc-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sc-detail { font-size: 11px; color: var(--text2); margin-top: 1px; }
+    .sc-cost { font-size: 14px; font-weight: 600; color: var(--gold); min-width: 30px; text-align: center; }
+
+    /* Log */
+    .log {
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      margin-top: 8px;
+    }
+    .log-entry { font-size: 11px; color: var(--text2); padding: 2px 0; border-bottom: 0.5px solid var(--border); }
+    .log-entry:last-child { border-bottom: none; }
+
+    /* Setup screen */
+    #setup-screen .scroll-area { padding-top: 40px; }
+    .setup-header { text-align: center; margin-bottom: 28px; }
+    .setup-header .icon { font-size: 52px; margin-bottom: 10px; }
+
+    /* Name inputs */
+    .name-input {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--surface2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+    .name-input:focus { border-color: var(--blue); }
+
+    select {
+      padding: 8px 12px;
+      background: var(--surface2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+
+    /* End screen */
+    .winner-banner { text-align: center; padding: 32px 20px 20px; }
+    .winner-banner .trophy { font-size: 64px; margin-bottom: 12px; }
+
+    .flex-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .divider { border: none; border-top: 0.5px solid var(--border); margin: 8px 0; }
+
+    /* Safe area padding for notch phones */
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- SETUP SCREEN -->
+  <div id="setup-screen" class="screen active">
+    <div class="scroll-area safe-bottom">
+      <div class="setup-header">
+        <div class="icon">🚀</div>
+        <h1>Space Base</h1>
+        <p style="margin-top: 4px;">Pass-and-play · 2–5 commanders</p>
+      </div>
+
+      <div class="card">
+        <h2>Number of players</h2>
+        <select id="num-players" onchange="initSetup()">
+          <option value="2">2 players</option>
+          <option value="3" selected>3 players</option>
+          <option value="4">4 players</option>
+          <option value="5">5 players</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <h2>Player names</h2>
+        <div id="player-names-container"></div>
+      </div>
+
+      <button class="btn primary block" onclick="startGame()" style="padding: 14px;">Launch Game</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding-right:10px;">
+      <div id="player-tabs" style="flex:1;"></div>
+      <button id="music-btn" onclick="toggleMusic()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:8px 4px;" title="Toggle music">🔇</button>
+    </div>
+    <div id="active-player-banner"></div>
+    <div class="scroll-area safe-bottom" id="main-content"></div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end-screen" class="screen">
+    <div class="scroll-area safe-bottom">
+      <div class="winner-banner">
+        <div class="trophy">🏆</div>
+        <h1 id="winner-title"></h1>
+        <p id="winner-subtitle" style="margin-top: 6px;"></p>
+      </div>
+      <div class="card" id="final-scores"></div>
+      <button class="btn primary block" onclick="resetGame()" style="margin-top: 10px; padding: 14px;">Play Again</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── CARD DATA ───────────────────────────────────────────────────────────────
+const SHIP_CARDS = [
+  // Level 1 (cost 2–5)
+  { id:'l1s1a',  level:1, sector:1,  cost:2, name:'UES Freighter',    station:{credits:1},          deployed:{credits:1} },
+  { id:'l1s2a',  level:1, sector:2,  cost:2, name:'UES Hauler',       station:{credits:2},          deployed:{credits:1} },
+  { id:'l1s3a',  level:1, sector:3,  cost:2, name:'UES Scout',        station:{credits:2},          deployed:{income:1}  },
+  { id:'l1s4a',  level:1, sector:4,  cost:3, name:'UES Ranger',       station:{credits:3},          deployed:{credits:1} },
+  { id:'l1s5a',  level:1, sector:5,  cost:3, name:'UES Carrier',      station:{credits:2,income:1}, deployed:{credits:1} },
+  { id:'l1s6a',  level:1, sector:6,  cost:3, name:'UES Corvette',     station:{credits:3},          deployed:{credits:1} },
+  { id:'l1s7a',  level:1, sector:7,  cost:4, name:'UES Frigate',      station:{credits:3,income:1}, deployed:{credits:1} },
+  { id:'l1s8a',  level:1, sector:8,  cost:4, name:'UES Destroyer',    station:{credits:4},          deployed:{credits:1} },
+  { id:'l1s9a',  level:1, sector:9,  cost:4, name:'UES Cruiser',      station:{vp:1,credits:2},     deployed:{credits:1} },
+  { id:'l1s10a', level:1, sector:10, cost:5, name:'UES Battleship',   station:{vp:1,credits:2},     deployed:{credits:1} },
+  { id:'l1s11a', level:1, sector:11, cost:5, name:'UES Dreadnought',  station:{vp:1,income:1},      deployed:{income:1}  },
+  { id:'l1s12a', level:1, sector:12, cost:5, name:'UES Titan',        station:{vp:2,credits:2},     deployed:{vp:1}      },
+  { id:'l1s1b',  level:1, sector:1,  cost:2, name:'UES Mule',         station:{credits:1},          deployed:{credits:1} },
+  { id:'l1s2b',  level:1, sector:2,  cost:2, name:'UES Tugboat',      station:{credits:2},          deployed:{credits:1} },
+  { id:'l1s3b',  level:1, sector:3,  cost:2, name:'UES Runner',       station:{income:1},           deployed:{credits:1} },
+  { id:'l1s4b',  level:1, sector:4,  cost:3, name:'UES Clipper',      station:{credits:3},          deployed:{credits:1} },
+  { id:'l1s5b',  level:1, sector:5,  cost:3, name:'UES Schooner',     station:{credits:3},          deployed:{credits:1} },
+  { id:'l1s6b',  level:1, sector:6,  cost:3, name:'UES Gunship',      station:{credits:2,income:1}, deployed:{credits:1} },
+  { id:'l1s7b',  level:1, sector:7,  cost:4, name:'UES Warship',      station:{credits:4},          deployed:{credits:2} },
+  { id:'l1s8b',  level:1, sector:8,  cost:4, name:'UES Broadside',    station:{credits:3,income:1}, deployed:{credits:1} },
+  { id:'l1s9b',  level:1, sector:9,  cost:4, name:'UES Bulwark',      station:{vp:1,credits:1},     deployed:{credits:2} },
+  { id:'l1s10b', level:1, sector:10, cost:5, name:'UES Rampart',      station:{vp:1,credits:3},     deployed:{credits:1} },
+  { id:'l1s11b', level:1, sector:11, cost:5, name:'UES Bastion',      station:{vp:2,credits:1},     deployed:{income:1}  },
+  { id:'l1s12b', level:1, sector:12, cost:5, name:'UES Citadel',      station:{vp:2,credits:2},     deployed:{vp:1}      },
+  // Level 2 (cost 6–9)
+  { id:'l2s1a',  level:2, sector:1,  cost:6, name:'SFS Striker',      station:{credits:3},          deployed:{credits:2} },
+  { id:'l2s2a',  level:2, sector:2,  cost:6, name:'SFS Vanguard',     station:{credits:3,income:1}, deployed:{credits:1} },
+  { id:'l2s3a',  level:2, sector:3,  cost:6, name:'SFS Lancer',       station:{credits:4},          deployed:{credits:2} },
+  { id:'l2s4a',  level:2, sector:4,  cost:6, name:'SFS Javelin',      station:{vp:1,credits:3},     deployed:{credits:2} },
+  { id:'l2s5a',  level:2, sector:5,  cost:7, name:'SFS Gladius',      station:{credits:4,income:1}, deployed:{credits:2} },
+  { id:'l2s6a',  level:2, sector:6,  cost:7, name:'SFS Paladin',      station:{vp:2,credits:3},     deployed:{credits:2} },
+  { id:'l2s7a',  level:2, sector:7,  cost:7, name:'SFS Sentinel',     station:{vp:2,credits:4},     deployed:{vp:1}      },
+  { id:'l2s8a',  level:2, sector:8,  cost:8, name:'SFS Ironclad',     station:{vp:3,credits:2},     deployed:{credits:2} },
+  { id:'l2s9a',  level:2, sector:9,  cost:8, name:'SFS Sovereign',    station:{vp:3,credits:3},     deployed:{income:1}  },
+  { id:'l2s10a', level:2, sector:10, cost:8, name:'SFS Champion',     station:{vp:3,income:1},      deployed:{vp:1}      },
+  { id:'l2s11a', level:2, sector:11, cost:9, name:'SFS Colossus',     station:{vp:4,credits:3},     deployed:{vp:1}      },
+  { id:'l2s12a', level:2, sector:12, cost:9, name:'SFS Leviathan',    station:{vp:4,credits:4},     deployed:{vp:2}      },
+  { id:'l2s1b',  level:2, sector:1,  cost:6, name:'SFS Dart',         station:{credits:4},          deployed:{credits:2} },
+  { id:'l2s2b',  level:2, sector:2,  cost:6, name:'SFS Arrow',        station:{credits:3},          deployed:{income:1}  },
+  { id:'l2s3b',  level:2, sector:3,  cost:6, name:'SFS Spear',        station:{vp:1,credits:2},     deployed:{credits:2} },
+  { id:'l2s4b',  level:2, sector:4,  cost:6, name:'SFS Blade',        station:{credits:4},          deployed:{credits:2} },
+  { id:'l2s5b',  level:2, sector:5,  cost:7, name:'SFS Shield',       station:{vp:1,credits:4},     deployed:{credits:1} },
+  { id:'l2s6b',  level:2, sector:6,  cost:7, name:'SFS Aegis',        station:{vp:2,income:1},      deployed:{credits:2} },
+  { id:'l2s7b',  level:2, sector:7,  cost:7, name:'SFS Bulwark',      station:{vp:2,credits:3},     deployed:{vp:1}      },
+  { id:'l2s8b',  level:2, sector:8,  cost:8, name:'SFS Fortress',     station:{vp:3,credits:3},     deployed:{vp:1}      },
+  { id:'l2s9b',  level:2, sector:9,  cost:8, name:'SFS Citadel',      station:{vp:3,income:1},      deployed:{credits:2} },
+  { id:'l2s10b', level:2, sector:10, cost:8, name:'SFS Rampart',      station:{vp:4,credits:2},     deployed:{vp:1}      },
+  { id:'l2s11b', level:2, sector:11, cost:9, name:'SFS Bastion',      station:{vp:4,income:1},      deployed:{vp:1}      },
+  { id:'l2s12b', level:2, sector:12, cost:9, name:'SFS Titan II',     station:{vp:5,credits:3},     deployed:{vp:2}      },
+  // Level 3 (cost 12–14)
+  { id:'l3s3a',  level:3, sector:3,  cost:12, name:'XSC Apex',        station:{vp:4,credits:4},     deployed:{credits:3} },
+  { id:'l3s4a',  level:3, sector:4,  cost:12, name:'XSC Nova',        station:{vp:5,credits:3},     deployed:{vp:1}      },
+  { id:'l3s5a',  level:3, sector:5,  cost:12, name:'XSC Pulse',       station:{vp:4,income:2},      deployed:{vp:1}      },
+  { id:'l3s6a',  level:3, sector:6,  cost:12, name:'XSC Blaze',       station:{vp:5,credits:4},     deployed:{vp:2}      },
+  { id:'l3s7a',  level:3, sector:7,  cost:13, name:'XSC Storm',       station:{vp:6,credits:3},     deployed:{vp:1}      },
+  { id:'l3s8a',  level:3, sector:8,  cost:13, name:'XSC Eclipse',     station:{vp:6,credits:4},     deployed:{vp:2}      },
+  { id:'l3s9a',  level:3, sector:9,  cost:13, name:'XSC Phoenix',     station:{vp:7,credits:3},     deployed:{income:2}  },
+  { id:'l3s10a', level:3, sector:10, cost:14, name:'XSC Titan X',     station:{vp:7,credits:4},     deployed:{vp:2}      },
+  { id:'l3s11a', level:3, sector:11, cost:14, name:'XSC Archon',      station:{vp:8,income:2},      deployed:{vp:2}      },
+  { id:'l3s12a', level:3, sector:12, cost:14, name:'XSC Pantheon',    station:{vp:9,credits:4},     deployed:{vp:3}      },
+  { id:'l3s3b',  level:3, sector:3,  cost:12, name:'XSC Vortex',      station:{vp:4,income:2},      deployed:{credits:2} },
+  { id:'l3s4b',  level:3, sector:4,  cost:12, name:'XSC Comet',       station:{vp:5,credits:4},     deployed:{vp:1}      },
+  { id:'l3s5b',  level:3, sector:5,  cost:12, name:'XSC Nebula',      station:{vp:5,credits:3},     deployed:{vp:1}      },
+  { id:'l3s6b',  level:3, sector:6,  cost:12, name:'XSC Quasar',      station:{vp:6,credits:2},     deployed:{vp:2}      },
+  { id:'l3s7b',  level:3, sector:7,  cost:13, name:'XSC Pulsar',      station:{vp:6,income:2},      deployed:{vp:1}      },
+  { id:'l3s8b',  level:3, sector:8,  cost:13, name:'XSC Supernova',   station:{vp:7,credits:3},     deployed:{vp:2}      },
+  { id:'l3s9b',  level:3, sector:9,  cost:13, name:'XSC Singularity', station:{vp:7,income:2},      deployed:{vp:2}      },
+  { id:'l3s10b', level:3, sector:10, cost:14, name:'XSC Infinity',    station:{vp:8,credits:3},     deployed:{vp:2}      },
+  { id:'l3s11b', level:3, sector:11, cost:14, name:'XSC Eternity',    station:{vp:9,income:2},      deployed:{vp:3}      },
+  { id:'l3s12b', level:3, sector:12, cost:14, name:'XSC Omnipotent',  station:{vp:10,credits:3},    deployed:{vp:3}      },
+];
+
+const STARTING_CARDS = [
+  { sector:1,  name:'Colony Ship',      station:{credits:1},  deployed:{credits:0} },
+  { sector:2,  name:'Patrol Craft',     station:{credits:1},  deployed:{credits:0} },
+  { sector:3,  name:'Cargo Ship',       station:{credits:1},  deployed:{credits:0} },
+  { sector:4,  name:'Mining Vessel',    station:{credits:1},  deployed:{credits:0} },
+  { sector:5,  name:'Science Vessel',   station:{credits:1},  deployed:{credits:0} },
+  { sector:6,  name:'Exploration Ship', station:{credits:1},  deployed:{credits:0} },
+  { sector:7,  name:'Defense Frigate',  station:{credits:3},  deployed:{credits:0} },
+  { sector:8,  name:'Heavy Cruiser',    station:{credits:3},  deployed:{credits:0} },
+  { sector:9,  name:'Fleet Tender',     station:{income:1},   deployed:{credits:0} },
+  { sector:10, name:'Command Ship',     station:{income:1},   deployed:{credits:0} },
+  { sector:11, name:'Assault Carrier',  station:{income:1},   deployed:{credits:0} },
+  { sector:12, name:'Dreadnaught',      station:{income:1},   deployed:{credits:0} },
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let G = {};
+
+function shuffle(arr) {
+  let a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ─── SETUP ───────────────────────────────────────────────────────────────────
+function initSetup() {
+  const n = parseInt(document.getElementById('num-players').value);
+  const c = document.getElementById('player-names-container');
+  c.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const d = document.createElement('div');
+    d.style.marginBottom = '8px';
+    d.innerHTML = `
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">Player ${i+1}</label>
+      <input class="name-input" type="text" id="pname-${i}" value="Commander ${i+1}" autocomplete="off">`;
+    c.appendChild(d);
+  }
+}
+
+function startGame() {
+  const n = parseInt(document.getElementById('num-players').value);
+  const names = Array.from({length:n}, (_,i) => document.getElementById(`pname-${i}`).value || `Commander ${i+1}`);
+
+  const l1deck = shuffle(SHIP_CARDS.filter(c => c.level===1));
+  const l2deck = shuffle(SHIP_CARDS.filter(c => c.level===2));
+  const l3deck = shuffle(SHIP_CARDS.filter(c => c.level===3));
+
+  const players = names.map(name => {
+    const sectors = {};
+    for (let s=1; s<=12; s++) {
+      const sc = STARTING_CARDS.find(c => c.sector===s);
+      sectors[s] = { stationed:{...sc, level:0}, deployed:[] };
+    }
+    return { name, credits:5, income:0, vp:0, sectors };
+  });
+
+  let startPlayerIdx = 0, highestSector = -1;
+  players.forEach((p, i) => {
+    const startCard = l1deck.shift();
+    p.sectors[startCard.sector].deployed.push({...p.sectors[startCard.sector].stationed});
+    p.sectors[startCard.sector].stationed = {...startCard};
+    p.credits = Math.max(0, p.credits - startCard.cost);
+    p._startSector = startCard.sector;
+    if (startCard.sector > highestSector) { highestSector = startCard.sector; startPlayerIdx = i; }
+  });
+
+  players.forEach((p, i) => {
+    if (i === startPlayerIdx) return;
+    const offset = (i - startPlayerIdx + n) % n;
+    if (offset===1) p.credits += 1;
+    else if (offset===2) p.credits += 2;
+    else if (offset===3) p.income += 1;
+    else if (offset===4) p.income += 1;
+  });
+
+  G = {
+    players, currentPlayer: startPlayerIdx, startPlayer: startPlayerIdx,
+    phase: 'roll', dice: [0,0], viewingPlayer: startPlayerIdx,
+    shipyard: {
+      l1: l1deck.splice(0,6), l2: l2deck.splice(0,6), l3: l3deck.splice(0,6),
+      l1deck, l2deck, l3deck
+    },
+    log: [`Game started! ${players[startPlayerIdx].name} goes first.`],
+    endTriggered: false, chosenDiceMode: null,
+  };
+
+  show('game-screen');
+  renderGame();
+}
+
+// ─── GAME LOGIC ──────────────────────────────────────────────────────────────
+function rewardStr(r) {
+  if (!r) return '—';
+  const p = [];
+  if (r.credits) p.push(`${r.credits}C`);
+  if (r.income)  p.push(`+${r.income} Inc`);
+  if (r.vp)      p.push(`${r.vp} VP`);
+  return p.join(' ') || '—';
+}
+
+function applyReward(player, reward) {
+  if (!reward) return;
+  if (reward.credits) player.credits = Math.min(20, player.credits + reward.credits);
+  if (reward.income)  player.income  = Math.min(10, player.income  + reward.income);
+  if (reward.vp)      player.vp      = Math.min(60, player.vp      + reward.vp);
+}
+
+function rollDice() {
+  G.dice = [Math.ceil(Math.random()*6), Math.ceil(Math.random()*6)];
+  G.phase = 'choose-dice';
+  addLog(`${G.players[G.currentPlayer].name} rolled ${G.dice[0]} + ${G.dice[1]} = ${G.dice[0]+G.dice[1]}`);
+  renderGame();
+}
+
+function chooseDiceMode(mode) {
+  G.chosenDiceMode = mode;
+  const [d1,d2] = G.dice;
+  const sectors = mode==='split' ? (d1===d2 ? [d1] : [d1,d2]) : [d1+d2];
+  const cp = G.players[G.currentPlayer];
+
+  sectors.forEach(s => applyReward(cp, cp.sectors[s].stationed.station));
+  addLog(`${cp.name} activated sector(s) ${sectors.join(' & ')}`);
+
+  G.players.forEach((op,i) => {
+    if (i===G.currentPlayer) return;
+    sectors.forEach(s => op.sectors[s].deployed.forEach(d => applyReward(op, d.deployed)));
+  });
+
+  G.phase = 'buy';
+  renderGame();
+}
+
+function buyCard(cardId) {
+  const cp = G.players[G.currentPlayer];
+  let card=null, lvl=null;
+  for (const l of [1,2,3]) {
+    const f = G.shipyard[`l${l}`].find(c => c.id===cardId);
+    if (f) { card=f; lvl=l; break; }
+  }
+  if (!card || cp.credits < card.cost) return;
+
+  cp.sectors[card.sector].deployed.push({...cp.sectors[card.sector].stationed});
+  cp.sectors[card.sector].stationed = {...card};
+  cp.credits = 0;
+
+  const idx = G.shipyard[`l${lvl}`].findIndex(c => c.id===cardId);
+  G.shipyard[`l${lvl}`].splice(idx,1);
+  const refill = G.shipyard[`l${lvl}deck`].shift();
+  if (refill) G.shipyard[`l${lvl}`].push(refill);
+
+  addLog(`${cp.name} bought ${card.name} (S${card.sector}) for ${card.cost}C`);
+  endTurn();
+}
+
+function skipBuy() {
+  addLog(`${G.players[G.currentPlayer].name} skipped buying`);
+  endTurn();
+}
+
+function endTurn() {
+  const p = G.players[G.currentPlayer];
+  if (p.credits < p.income) p.credits = p.income;
+
+  if (!G.endTriggered) {
+    G.players.forEach(pl => {
+      if (pl.vp >= 40 && !G.endTriggered) {
+        G.endTriggered = true;
+        addLog(`${pl.name} reached 40 VP! Finishing the round...`);
+      }
+    });
+  }
+
+  const rightOfStart = (G.startPlayer - 1 + G.players.length) % G.players.length;
+  if (G.endTriggered && G.currentPlayer === rightOfStart) { endGame(); return; }
+
+  G.currentPlayer = (G.currentPlayer + 1) % G.players.length;
+  G.phase = 'roll';
+  G.dice = [0,0];
+  G.chosenDiceMode = null;
+  G.viewingPlayer = G.currentPlayer;
+  renderGame();
+}
+
+function endGame() {
+  show('end-screen');
+  const sorted = [...G.players].sort((a,b) => b.vp - a.vp);
+  document.getElementById('winner-title').textContent = `${sorted[0].name} wins!`;
+  document.getElementById('winner-subtitle').textContent = `${sorted[0].vp} VP — Admiral of the Fleet!`;
+  document.getElementById('final-scores').innerHTML = '<h2>Final Scores</h2>' +
+    sorted.map((p,i) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);">
+      <span>${i+1}. ${p.name}</span><span class="badge purple">${p.vp} VP</span></div>`).join('');
+}
+
+function addLog(msg) { G.log.unshift(msg); if (G.log.length > 20) G.log.pop(); }
+function resetGame() { show('setup-screen'); initSetup(); }
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderGame() { renderTabs(); renderBanner(); renderMain(); }
+
+function renderTabs() {
+  document.getElementById('player-tabs').innerHTML = G.players.map((p,i) =>
+    `<div class="player-tab ${i===G.viewingPlayer?'active':''}" onclick="G.viewingPlayer=${i};renderGame();">${p.name}</div>`
+  ).join('');
+}
+
+function renderBanner() {
+  const p = G.players[G.currentPlayer];
+  const labels = {roll:'Roll dice','choose-dice':'Allocate dice',buy:'Buy a ship'};
+  const isCurrent = G.viewingPlayer === G.currentPlayer;
+  document.getElementById('active-player-banner').innerHTML =
+    `<div><div style="font-size:11px;color:var(--text2);">Active player</div>
+     <div style="font-size:15px;font-weight:600;">${p.name}</div></div>
+     <span class="badge ${isCurrent?'blue':'gold'}">${labels[G.phase]||G.phase}</span>`;
+}
+
+function renderMain() {
+  const vp = G.players[G.viewingPlayer];
+  const cp = G.players[G.currentPlayer];
+  const isCurrent = G.viewingPlayer === G.currentPlayer;
+  const [d1,d2] = G.dice;
+  const total = d1+d2;
+
+  let html = `<div class="stat-row">
+    <div class="stat-box">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="13" fill="#BA7517" opacity="0.2"/>
+        <circle cx="16" cy="16" r="10" fill="#BA7517" opacity="0.5"/>
+        <circle cx="16" cy="16" r="7" fill="#BA7517"/>
+        <text x="16" y="20" text-anchor="middle" font-size="9" font-weight="700" fill="#FAEEDA" font-family="sans-serif">C</text>
+      </svg>
+      <div class="value" style="color:var(--gold);">${vp.credits}</div>
+      <div class="label">Credits</div>
+    </div>
+    <div class="stat-box">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="#3B6D11" opacity="0.25"/>
+        <polygon points="16,5 25,10.5 25,21.5 16,27 7,21.5 7,10.5" fill="#3B6D11" opacity="0.6"/>
+        <polygon points="16,8 22,11.5 22,18.5 16,22 10,18.5 10,11.5" fill="#3B6D11"/>
+        <polyline points="16,22 16,12" stroke="#C0DD97" stroke-width="2" stroke-linecap="round"/>
+        <polyline points="12,16 16,12 20,16" stroke="#C0DD97" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div class="value" style="color:var(--green);">${vp.income}</div>
+      <div class="label">Income</div>
+    </div>
+    <div class="stat-box">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="16,3 19.5,12.5 30,12.5 21.5,18.5 24.5,28 16,22 7.5,28 10.5,18.5 2,12.5 12.5,12.5" fill="#534AB7" opacity="0.3"/>
+        <polygon points="16,5 19,13 27.5,13 21,18 23.5,26.5 16,21.5 8.5,26.5 11,18 4.5,13 13,13" fill="#534AB7" opacity="0.6"/>
+        <polygon points="16,7 18.5,13.5 25.5,13.5 20,17.5 22,24 16,20 10,24 12,17.5 6.5,13.5 13.5,13.5" fill="#7F77DD"/>
+      </svg>
+      <div class="value" style="color:var(--purple);">${vp.vp}<span style="font-size:12px;font-weight:400;color:var(--text2);">/40</span></div>
+      <div class="label">VP</div>
+    </div>
+  </div>`;
+
+  if (isCurrent) {
+    if (G.phase === 'roll') {
+      html += `<button class="btn primary block" onclick="rollDice()" style="padding:16px;font-size:16px;margin-bottom:10px;">🎲 Roll Dice</button>`;
+    }
+
+    if (G.phase === 'choose-dice') {
+      html += `<div class="card">
+        <div class="dice-display">
+          <div class="die">${d1}</div>
+          <span style="color:var(--text2);">+</span>
+          <div class="die">${d2}</div>
+          <span style="color:var(--text2);font-size:14px;">= ${total}</span>
+        </div>
+        <p style="margin-bottom:10px;">Activate two sectors individually, or one sector equal to the total.</p>
+        <div class="flex-row">
+          <button class="btn primary sm" onclick="chooseDiceMode('split')">Sectors ${d1} &amp; ${d2}</button>
+          <button class="btn sm" onclick="chooseDiceMode('total')">Sector ${total}</button>
+        </div>
+      </div>`;
+    }
+
+    if (G.phase === 'buy') {
+      html += `<div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+        <div class="die" style="width:36px;height:36px;font-size:18px;">${d1}</div>
+        <div class="die" style="width:36px;height:36px;font-size:18px;">${d2}</div>
+        <span style="font-size:12px;color:var(--text2);">= ${total} · ${G.chosenDiceMode==='split'?`S${d1}&S${d2}`:`S${total}`}</span>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <h2 style="margin:0;">Shipyard</h2>
+          <span style="font-size:12px;color:var(--text2);">You have <b style="color:var(--gold);">${cp.credits}C</b></span>
+        </div>`;
+
+      html += `<button class="btn sm block" onclick="skipBuy()" style="margin-top:6px;">Skip purchase</button></div>`;
+    }
+  } else {
+    html += `<p style="margin-bottom:8px;">Viewing ${vp.name}'s board · ${cp.name}'s turn</p>`;
+  }
+
+  // Sector grid
+  const highlighted = [];
+  if (G.phase==='buy' && G.chosenDiceMode) {
+    if (G.chosenDiceMode==='split') { highlighted.push(d1); if(d1!==d2) highlighted.push(d2); }
+    else highlighted.push(total);
+  }
+
+  html += `<div class="card"><h2>${isCurrent?'Your':vp.name+"'s"} Sectors</h2><div class="sectors-grid">`;
+  for (let s=1; s<=12; s++) {
+    const sec = vp.sectors[s];
+    const isHL = highlighted.includes(s);
+    const depRs = sec.deployed.map(d => rewardStr(d.deployed)).filter(r => r!=='—');
+    html += `<div class="sector ${isHL?'highlighted':''}" title="${sec.stationed.name}">
+      <div class="sec-num">${s}</div>
+      <div class="sec-reward">${rewardStr(sec.stationed.station)}</div>
+      ${depRs.length?`<div class="sec-deployed">${depRs.join(' ')}</div>`:''}
+    </div>`;
+  }
+  html += `</div></div>`;
+
+  if (G.log.length) {
+    html += `<div class="log">${G.log.slice(0,6).map(l=>`<div class="log-entry">${l}</div>`).join('')}</div>`;
+  }
+
+  // Always-visible shipyard
+  const ranges = ['2–5C','6–9C','12–14C'];
+  html += `<div class="card" style="margin-top:8px;">
+    <h2>Shipyard</h2>`;
+  [1,2,3].forEach(lvl => {
+    const cards = G.shipyard[`l${lvl}`];
+    if (!cards.length) return;
+    html += `<div style="font-size:10px;font-weight:600;color:var(--text2);margin:8px 0 4px;text-transform:uppercase;letter-spacing:0.6px;">Level ${lvl} · ${ranges[lvl-1]}</div>`;
+    cards.forEach(card => {
+      const canBuy = isCurrent && G.phase === 'buy' && cp.credits >= card.cost;
+      const showBtn = isCurrent && G.phase === 'buy';
+      html += `<div class="shipyard-card">
+        <div class="sc-info">
+          <div class="sc-name">${card.name}</div>
+          <div class="sc-detail">S${card.sector} · ${rewardStr(card.station)} active · ${rewardStr(card.deployed)} passive</div>
+        </div>
+        <span class="sc-cost">${card.cost}C</span>
+        ${showBtn ? `<button class="btn sm ${canBuy?'primary':''}" ${canBuy?'':'disabled'} onclick="buyCard('${card.id}')">Buy</button>` : ''}
+      </div>`;
+    });
+  });
+  html += `</div>`;
+
+  document.getElementById('main-content').innerHTML = html;
+}
+
+// ─── AUDIO ───────────────────────────────────────────────────────────────────
+const bgAudio = new Audio('./3.mp3');
+bgAudio.loop = true;
+bgAudio.volume = 0.4;
+let musicPlaying = false;
+
+function toggleMusic() {
+  const btn = document.getElementById('music-btn');
+  if (musicPlaying) {
+    bgAudio.pause();
+    musicPlaying = false;
+    if (btn) btn.textContent = '🔇';
+  } else {
+    bgAudio.play().then(() => {
+      musicPlaying = true;
+      if (btn) btn.textContent = '🔊';
+    }).catch(() => {});
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+initSetup();
+
+// Register service worker for offline support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
