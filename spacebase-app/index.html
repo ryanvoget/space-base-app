@@ -179,51 +179,90 @@
     }
     .sectors-grid::-webkit-scrollbar { display: none; }
     .sector {
-      border: 0.5px solid var(--border);
-      border-radius: 9px;
-      padding: 16px 6px 12px;
-      text-align: center;
-      background: var(--surface2);
+      border-radius: 10px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
       height: 252px;
       min-width: 175px;
       max-width: 175px;
       flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      position: relative;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.12);
     }
     .sector.highlighted {
-      border: 1.5px solid var(--blue);
-      background: var(--blue-bg);
-      box-shadow: 0 0 8px rgba(58,143,212,0.4);
+      border: 2px solid var(--blue);
+      box-shadow: 0 0 12px rgba(58,143,212,0.5);
+    }
+    .sector .sec-art {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 8px;
+    }
+    .sector .sec-stars {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);
+      background-size: 14px 14px;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .sector .sec-cost {
+      position: absolute;
+      top: 8px; left: 8px;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #c9933a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; color: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
     }
     .sector .sec-num {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text2);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
       position: absolute;
-      top: 10px;
-      left: 12px;
+      top: 8px; right: 8px;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #555;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; color: #ddd;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
     }
-    .sector .sec-reward {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.5;
+    .sector .sec-ship-icon {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 4px;
     }
-    .sector .sec-deployed {
-      font-size: 15px;
-      color: var(--blue);
-      border-top: 0.5px solid var(--border);
-      width: 100%;
-      padding-top: 8px;
-      line-height: 1.5;
+    .sector .sec-namebar {
+      padding: 4px 6px;
+      text-align: center;
+      margin: 0 -8px -8px;
+    }
+    .sector .sec-namebar .sec-name {
+      font-size: 10px; font-weight: 700; color: #e0e0e0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sector .sec-namebar .sec-type {
+      font-size: 8px; color: #8899bb;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sector .sec-station {
+      background: #1a3a5c;
+      padding: 6px 8px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 4px; min-height: 32px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .sector .sec-passive-row {
+      background: #5c1a1a;
+      padding: 5px 8px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 4px; min-height: 28px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
     }
 
     /* Dice */
@@ -468,42 +507,74 @@ const SHIP_CARDS = [
   { id:'l2_46', level:2, sector:12, cost:7, name:"U.E.S. Kovalyonok 8127-H",   type:"Roddenbury Class Hypernet Gate",      station:{charge:1,chargeMax:1,special:"Claim 3 L1 cards"},    deployed:{charge:1,chargeMax:1,special:"Claim 1 L2 card"} },
   { id:'l2_47', level:2, sector:10, cost:7, name:"U.E.S. Rozhdestvensky 6723-C",type:"Silverberg Class Command Tug",       station:{credits:4,charge:3,chargeMax:3,special:"Swap S2+S11"}, deployed:{credits:4,charge:1,chargeMax:1,special:"Set 1 die"} },
   { id:'l2_48', level:2, sector:9,  cost:7, name:"U.E.S. Zudov 2056-G",        type:"Verne Class Hypernet Gate",           station:{charge:1,chargeMax:1,special:"Exchange card"},       deployed:{charge:1,chargeMax:1,special:"Exchange card"} },
-    // Level 3 (cost 12–14)
-  { id:'l3s3a',  level:3, sector:3,  cost:12, name:'XSC Apex',        station:{vp:4,credits:4},     deployed:{credits:3} },
-  { id:'l3s4a',  level:3, sector:4,  cost:12, name:'XSC Nova',        station:{vp:5,credits:3},     deployed:{vp:1}      },
-  { id:'l3s5a',  level:3, sector:5,  cost:12, name:'XSC Pulse',       station:{vp:4,income:2},      deployed:{vp:1}      },
-  { id:'l3s6a',  level:3, sector:6,  cost:12, name:'XSC Blaze',       station:{vp:5,credits:4},     deployed:{vp:2}      },
-  { id:'l3s7a',  level:3, sector:7,  cost:13, name:'XSC Storm',       station:{vp:6,credits:3},     deployed:{vp:1}      },
-  { id:'l3s8a',  level:3, sector:8,  cost:13, name:'XSC Eclipse',     station:{vp:6,credits:4},     deployed:{vp:2}      },
-  { id:'l3s9a',  level:3, sector:9,  cost:13, name:'XSC Phoenix',     station:{vp:7,credits:3},     deployed:{income:2}  },
-  { id:'l3s10a', level:3, sector:10, cost:14, name:'XSC Titan X',     station:{vp:7,credits:4},     deployed:{vp:2}      },
-  { id:'l3s11a', level:3, sector:11, cost:14, name:'XSC Archon',      station:{vp:8,income:2},      deployed:{vp:2}      },
-  { id:'l3s12a', level:3, sector:12, cost:14, name:'XSC Pantheon',    station:{vp:9,credits:4},     deployed:{vp:3}      },
-  { id:'l3s3b',  level:3, sector:3,  cost:12, name:'XSC Vortex',      station:{vp:4,income:2},      deployed:{credits:2} },
-  { id:'l3s4b',  level:3, sector:4,  cost:12, name:'XSC Comet',       station:{vp:5,credits:4},     deployed:{vp:1}      },
-  { id:'l3s5b',  level:3, sector:5,  cost:12, name:'XSC Nebula',      station:{vp:5,credits:3},     deployed:{vp:1}      },
-  { id:'l3s6b',  level:3, sector:6,  cost:12, name:'XSC Quasar',      station:{vp:6,credits:2},     deployed:{vp:2}      },
-  { id:'l3s7b',  level:3, sector:7,  cost:13, name:'XSC Pulsar',      station:{vp:6,income:2},      deployed:{vp:1}      },
-  { id:'l3s8b',  level:3, sector:8,  cost:13, name:'XSC Supernova',   station:{vp:7,credits:3},     deployed:{vp:2}      },
-  { id:'l3s9b',  level:3, sector:9,  cost:13, name:'XSC Singularity', station:{vp:7,income:2},      deployed:{vp:2}      },
-  { id:'l3s10b', level:3, sector:10, cost:14, name:'XSC Infinity',    station:{vp:8,credits:3},     deployed:{vp:2}      },
-  { id:'l3s11b', level:3, sector:11, cost:14, name:'XSC Eternity',    station:{vp:9,income:2},      deployed:{vp:3}      },
-  { id:'l3s12b', level:3, sector:12, cost:14, name:'XSC Omnipotent',  station:{vp:10,credits:3},    deployed:{vp:3}      },
+    // Level 3 — real cards from card list
+  { id:'l3_01', level:3, sector:5,  cost:12, name:"U.E.S. Borman 3060-D",        type:"Bowie Class Cargo Vessel",          station:{credits:4},                                        deployed:{credits:4} },
+  { id:'l3_02', level:3, sector:12, cost:14, name:"U.E.S. Carpenter 2967-E",      type:"Bowie Class Cargo Vessel",          station:{credits:18},                                       deployed:{credits:10} },
+  { id:'l3_03', level:3, sector:4,  cost:12, name:"U.E.S. Conrad 5602-E",         type:"Bowie Class Cargo Vessel",          station:{credits:4},                                        deployed:{credits:4} },
+  { id:'l3_04', level:3, sector:6,  cost:12, name:"U.E.S. Lovell 1948-A",         type:"Bowie Class Cargo Vessel",          station:{credits:4},                                        deployed:{credits:4} },
+  { id:'l3_05', level:3, sector:2,  cost:12, name:"U.E.S. McDivitt 2121-A",       type:"Bowie Class Cargo Vessel",          station:{credits:4},                                        deployed:{credits:4} },
+  { id:'l3_06', level:3, sector:11, cost:13, name:"U.E.S. Stafford 4286-G",       type:"Bowie Class Cargo Vessel",          station:{credits:14},                                       deployed:{credits:8} },
+  { id:'l3_07', level:3, sector:3,  cost:12, name:"U.E.S. White 4448-C",          type:"Bowie Class Cargo Vessel",          station:{credits:4},                                        deployed:{credits:4} },
+  { id:'l3_08', level:3, sector:1,  cost:12, name:"U.E.S. Young 6740-G",          type:"Bowie Class Cargo Vessel",          station:{credits:4},                                        deployed:{credits:4} },
+  { id:'l3_09', level:3, sector:1,  cost:12, name:"U.E.S. Gagarin 4879-F",        type:"Burroughs Class Command Ship",      station:{charge:1,chargeMax:2,special:"Set 1 die + 1C/die"},deployed:{charge:1,chargeMax:1,special:"Set 1 die"} },
+  { id:'l3_10', level:3, sector:4,  cost:12, name:"U.E.S. Titov 9072-F",          type:"Burroughs Class Command Ship",      station:{charge:1,chargeMax:2,special:"Set 1 die + 1C/die"},deployed:{charge:1,chargeMax:1,special:"Set 1 die"} },
+  { id:'l3_11', level:3, sector:7,  cost:13, name:"U.E.S. Cooper 6412-D",         type:"Clarke Class Mining Vessel",        station:{credits:3,income:3},                               deployed:{credits:3,income:2} },
+  { id:'l3_12', level:3, sector:7,  cost:14, name:"U.E.S. Aldrin 4775-F",         type:"Frazetta Class Carrier",            station:{vp:6},                                             deployed:{vp:3} },
+  { id:'l3_13', level:3, sector:11, cost:14, name:"U.E.S. Anders 4253-F",         type:"Frazetta Class Carrier",            station:{vp:8},                                             deployed:{vp:5} },
+  { id:'l3_14', level:3, sector:6,  cost:14, name:"U.E.S. Belyayev 1657-D",       type:"Frazetta Class Carrier",            station:{vp:3},                                             deployed:{vp:2} },
+  { id:'l3_15', level:3, sector:10, cost:14, name:"U.E.S. Beregovoy 8603-A",      type:"Frazetta Class Carrier",            station:{vp:7},                                             deployed:{vp:4} },
+  { id:'l3_16', level:3, sector:9,  cost:14, name:"U.E.S. Cunningham 9172-H",     type:"Frazetta Class Carrier",            station:{vp:7},                                             deployed:{vp:4} },
+  { id:'l3_17', level:3, sector:8,  cost:14, name:"U.E.S. Eisele 7639-F",         type:"Frazetta Class Carrier",            station:{vp:6},                                             deployed:{vp:3} },
+  { id:'l3_18', level:3, sector:3,  cost:14, name:"U.E.S. Feoktistov 1804-D",     type:"Frazetta Class Carrier",            station:{vp:3},                                             deployed:{vp:2} },
+  { id:'l3_19', level:3, sector:2,  cost:14, name:"U.E.S. Komarov 9388-G",        type:"Frazetta Class Carrier",            station:{vp:3},                                             deployed:{vp:2} },
+  { id:'l3_20', level:3, sector:5,  cost:14, name:"U.E.S. Leonov 4621-E",         type:"Frazetta Class Carrier",            station:{vp:3},                                             deployed:{vp:2} },
+  { id:'l3_21', level:3, sector:12, cost:14, name:"U.E.S. Shatalov 3516-B",       type:"Frazetta Class Carrier",            station:{vp:9},                                             deployed:{vp:5} },
+  { id:'l3_22', level:3, sector:1,  cost:14, name:"U.E.S. Walker 3930-D",         type:"Frazetta Class Carrier",            station:{vp:3},                                             deployed:{vp:2} },
+  { id:'l3_23', level:3, sector:4,  cost:14, name:"U.E.S. Yegorov 1205-H",        type:"Frazetta Class Carrier",            station:{vp:3},                                             deployed:{vp:2} },
+  { id:'l3_24', level:3, sector:7,  cost:13, name:"U.E.S. Gordon 7981-G",         type:"Gernsback Class Destroyer",         station:{charge:1,chargeMax:1,special:"Opp -4VP, buy 1-2 cards"},deployed:{charge:1,chargeMax:1,special:"Opp -3VP, buy 1 card"} },
+  { id:'l3_25', level:3, sector:2,  cost:13, name:"U.E.S. Shepard 3592-G",        type:"Gunn Class Cargo Carrier",          station:{charge:4,chargeMax:4,special:"20C when charged"}, deployed:{credits:2,vp:1} },
+  { id:'l3_26', level:3, sector:12, cost:14, name:"U.E.S. Armstrong 6927-D",      type:"Lucas Class Gun Carriage",          station:{charge:3,chargeMax:5,special:"YOU WIN"},          deployed:{credits:10,charge:1,chargeMax:1} },
+  { id:'l3_27', level:3, sector:9,  cost:13, name:"P.S.S. Bykovsky 4498-A",       type:"Modified Pohl Class Tug",           station:{special:"Claim L2 + L1 card"},                   deployed:{charge:1,chargeMax:1,special:"Claim L2 card"} },
+  { id:'l3_28', level:3, sector:11, cost:13, name:"P.S.S. Nikolayev 5815-B",      type:"Modified Pohl Class Tug",           station:{special:"Claim L3 + L1 card"},                   deployed:{charge:1,chargeMax:1,special:"Claim L3 card"} },
+  { id:'l3_29', level:3, sector:10, cost:13, name:"P.S.S. Popovich 8867-G",       type:"Modified Pohl Class Tug",           station:{special:"Claim 2× L2 cards"},                    deployed:{charge:1,chargeMax:1,special:"Claim L3 card"} },
+  { id:'l3_30', level:3, sector:8,  cost:13, name:"P.S.S. Tereshkova 5875-A",     type:"Modified Pohl Class Tug",           station:{special:"Claim 2× L1 cards"},                    deployed:{charge:1,chargeMax:1,special:"Claim L2 card"} },
+  { id:'l3_31', level:3, sector:8,  cost:14, name:"U.E.S. Collins 2064-F",        type:"Moore Class Fast Tanker",           station:{charge:1,chargeMax:1,special:"Place + move charge"},deployed:{charge:1,chargeMax:1,special:"Place 1 charge"} },
+  { id:'l3_32', level:3, sector:10, cost:13, name:"U.E.S. Scott 4406-C",          type:"Roddenbury Class Hypernet Gate",    station:{charge:1,chargeMax:3,special:"Buy card for S7-12"},deployed:{charge:1,chargeMax:1,special:"Buy card for S7-12"} },
+  { id:'l3_33', level:3, sector:6,  cost:13, name:"U.E.S. Glenn 1817-C",          type:"Russel Class Tanker",               station:{charge:2,chargeMax:2,special:"Place 1 charge"},   deployed:{charge:2,chargeMax:2,special:"Place 1 charge"} },
+  { id:'l3_34', level:3, sector:9,  cost:13, name:"U.E.S. Cernan 9131-H",         type:"Sturgeon Class Defender Tug",       station:{credits:6,charge:3,chargeMax:3,special:"Swap S1+S12"},deployed:{vp:3} },
+  { id:'l3_35', level:3, sector:5,  cost:14, name:"U.E.S. Schirra 9069-D",        type:"Sturgeon Class Defender Tug",       station:{credits:2,charge:3,chargeMax:3,special:"Swap S4+S10"},deployed:{credits:2,vp:1} },
+  { id:'l3_36', level:3, sector:3,  cost:13, name:"U.E.S. Grissom 8139-H",        type:"Tucker Class Cargo Train",          station:{charge:3,chargeMax:3,special:"Roll=charge, 3C/charge"},deployed:{charge:2,chargeMax:2,special:"Roll=charge, 3C/charge"} },
+
+];
+
+const COLONY_CARDS = [
+  { sector:1,  cost:9,  vp:3  },
+  { sector:2,  cost:12, vp:4  },
+  { sector:3,  cost:15, vp:5  },
+  { sector:4,  cost:18, vp:6  },
+  { sector:5,  cost:21, vp:7  },
+  { sector:6,  cost:24, vp:8  },
+  { sector:7,  cost:27, vp:9  },
+  { sector:8,  cost:30, vp:10 },
+  { sector:9,  cost:33, vp:11 },
+  { sector:10, cost:36, vp:12 },
+  { sector:11, cost:39, vp:13 },
+  { sector:12, cost:42, vp:14 },
 ];
 
 const STARTING_CARDS = [
-  { sector:1,  name:'Colony Ship',      station:{credits:1},  deployed:{credits:0} },
-  { sector:2,  name:'Patrol Craft',     station:{credits:1},  deployed:{credits:0} },
-  { sector:3,  name:'Cargo Ship',       station:{credits:1},  deployed:{credits:0} },
-  { sector:4,  name:'Mining Vessel',    station:{credits:1},  deployed:{credits:0} },
-  { sector:5,  name:'Science Vessel',   station:{credits:1},  deployed:{credits:0} },
-  { sector:6,  name:'Exploration Ship', station:{credits:1},  deployed:{credits:0} },
-  { sector:7,  name:'Defense Frigate',  station:{credits:3},  deployed:{credits:0} },
-  { sector:8,  name:'Heavy Cruiser',    station:{credits:3},  deployed:{credits:0} },
-  { sector:9,  name:'Fleet Tender',     station:{income:1},   deployed:{credits:0} },
-  { sector:10, name:'Command Ship',     station:{income:1},   deployed:{credits:0} },
-  { sector:11, name:'Assault Carrier',  station:{income:1},   deployed:{credits:0} },
-  { sector:12, name:'Dreadnaught',      station:{income:1},   deployed:{credits:0} },
+  { sector:1,  name:'Colony Ship',      station:{credits:1},  deployed:{credits:1} },
+  { sector:2,  name:'Patrol Craft',     station:{credits:1},  deployed:{credits:1} },
+  { sector:3,  name:'Cargo Ship',       station:{credits:1},  deployed:{credits:1} },
+  { sector:4,  name:'Mining Vessel',    station:{credits:1},  deployed:{credits:1} },
+  { sector:5,  name:'Science Vessel',   station:{credits:1},  deployed:{credits:1} },
+  { sector:6,  name:'Exploration Ship', station:{credits:1},  deployed:{credits:1} },
+  { sector:7,  name:'Defense Frigate',  station:{credits:3},  deployed:{credits:2} },
+  { sector:8,  name:'Heavy Cruiser',    station:{credits:3},  deployed:{credits:3} },
+  { sector:9,  name:'Fleet Tender',     station:{income:1},   deployed:{credits:3} },
+  { sector:10, name:'Command Ship',     station:{income:1},   deployed:{credits:3} },
+  { sector:11, name:'Assault Carrier',  station:{income:1},   deployed:{credits:4} },
+  { sector:12, name:'Dreadnaught',      station:{income:1},   deployed:{credits:5} },
 ];
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
@@ -577,28 +648,45 @@ function renderReveal() {
   const card = G.drawnCards[i];
   const oldCard = STARTING_CARDS.find(c => c.sector === card.sector);
   const el = document.getElementById('reveal-content');
+
+  // Build card in card-anatomy format — wider for reveal screen
+  const cardHtml =
+    '<div style="width:160px;border-radius:12px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);display:flex;flex-direction:column;margin:0 auto 16px;">'
+    // Art area
+    + '<div style="background:linear-gradient(160deg,#0a1628 0%,#1a2a5c 50%,#0d1f3c 100%);padding:10px 10px 6px;position:relative;min-height:110px;display:flex;flex-direction:column;justify-content:flex-end;">'
+    + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:14px 14px;opacity:0.15;pointer-events:none;"></div>'
+    // Cost circle top-left
+    + '<div style="position:absolute;top:8px;left:8px;width:30px;height:30px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.cost + '</div>'
+    // Sector circle top-right
+    + '<div style="position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
+    // Ship emoji
+    + '<div style="text-align:center;font-size:40px;margin-bottom:4px;">🚀</div>'
+    // Name bar
+    + '<div style="background:#0a1a3a;margin:0 -10px -6px;padding:5px 8px;text-align:center;">'
+    + '<div style="font-size:10px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
+    + '<div style="font-size:8px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'Level 1') + '</div>'
+    + '</div>'
+    + '</div>'
+    // Station reward — blue
+    + '<div style="background:#1a3a5c;padding:8px;display:flex;flex-direction:column;align-items:center;gap:3px;border-top:1px solid rgba(255,255,255,0.08);">'
+    + '<div style="font-size:9px;color:#6a9fd4;text-transform:uppercase;letter-spacing:0.5px;">Station Reward</div>'
+    + '<div>' + rewardIcons(card.station, 16) + '</div>'
+    + '</div>'
+    // Deployed reward — red
+    + '<div style="background:#5c1a1a;padding:8px;display:flex;flex-direction:column;align-items:center;gap:3px;border-top:1px solid rgba(255,255,255,0.08);">'
+    + '<div style="font-size:9px;color:#d46a6a;text-transform:uppercase;letter-spacing:0.5px;">Deployed Reward</div>'
+    + '<div>' + rewardIcons(card.deployed, 16) + '</div>'
+    + '</div>'
+    + '</div>';
+
   el.innerHTML =
-    '<div style="text-align:center;width:100%;">'
-    + '<div style="font-size:13px;color:var(--text2);margin-bottom:4px;">Player ' + (i+1) + ' of ' + G.players.length + '</div>'
+    '<div style="text-align:center;width:100%;padding:0 16px;">'
+    + '<div style="font-size:12px;color:var(--text2);margin-bottom:4px;">Player ' + (i+1) + ' of ' + G.players.length + '</div>'
     + '<div style="font-size:20px;font-weight:600;margin-bottom:16px;">' + player.name + '</div>'
-    + '<div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Your starting ship card:</div>'
-    + '<div style="background:var(--surface);border:1px solid var(--blue);border-radius:14px;padding:20px;max-width:260px;margin:0 auto 20px;box-shadow:0 4px 16px rgba(58,143,212,0.2);">'
-    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:0.5px;text-transform:uppercase;">Level 1</span><span style="font-size:11px;font-weight:700;color:var(--text2);">S' + card.sector + '</span></div>'
-    + '<div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:16px;">' + card.name + '</div>'
-    + '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">'
-    + '<div style="background:var(--surface2);border-radius:8px;padding:10px 14px;text-align:center;">'
-    + '<div style="font-size:10px;color:var(--text2);margin-bottom:4px;">ACTIVE (stationed)</div>'
-    + '<div>' + rewardIcons(card.station) + '</div>'
-    + '</div>'
-    + '<div style="background:var(--surface2);border-radius:8px;padding:10px 14px;text-align:center;">'
-    + '<div style="font-size:10px;color:var(--text2);margin-bottom:4px;">PASSIVE (deployed)</div>'
-    + '<div>' + rewardIcons(card.deployed) + '</div>'
-    + '</div>'
-    + '</div>'
-    + '<div style="margin-top:14px;font-size:11px;color:var(--text2);">Replaces sector ' + card.sector + ' starting card (' + rewardStr(oldCard.station) + ')</div>'
-    + '<div style="margin-top:4px;font-size:11px;color:var(--text2);">Cost: <b style="color:var(--gold);">' + card.cost + 'C</b> deducted from your starting 5C</div>'
-    + '</div>'
-    + '<button class="btn primary block" onclick="confirmStartCard()" style="padding:14px;font-size:15px;max-width:260px;margin:0 auto;">Confirm Starting Card</button>'
+    + '<div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Your starting ship:</div>'
+    + cardHtml
+    + '<div style="font-size:11px;color:var(--text2);margin-bottom:6px;">Replaces S' + card.sector + ' starting card · Costs <b style="color:var(--gold);">' + card.cost + 'C</b></div>'
+    + '<button class="btn primary block" onclick="confirmStartCard()" style="padding:14px;font-size:15px;">Confirm Starting Card</button>'
     + '</div>';
 }
 
@@ -637,6 +725,8 @@ function confirmStartCard() {
   G.currentPlayer = startPlayerIdx;
   G.startPlayer = startPlayerIdx;
   G.viewingPlayer = startPlayerIdx;
+  G.colonyPurchased = {};  // sector -> playerName
+  G.shopView = 'ships';   // 'ships' or 'colony'
   G.log = [`Game started! ${G.players[startPlayerIdx].name} goes first.`];
 
   show('game-screen');
@@ -661,15 +751,15 @@ function rewardStr(r) {
 function rewardIcons(r, size=12) {
   if (!r) return '';
   const fs = Math.round(size * 0.92);
-  const coinSvg = (n) => `<span style="display:inline-flex;align-items:center;gap:2px;white-space:nowrap;">
-    <svg width="${size}" height="${size}" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#BA7517" opacity="0.3"/><circle cx="16" cy="16" r="9" fill="#BA7517"/><text x="16" y="20" text-anchor="middle" font-size="10" font-weight="700" fill="#FAEEDA" font-family="sans-serif">C</text></svg>
-    <span style="font-size:${fs}px;font-weight:600;color:#c9933a;">${n}</span></span>`;
-  const incomeSvg = (n) => `<span style="display:inline-flex;align-items:center;gap:2px;white-space:nowrap;">
-    <svg width="${size}" height="${size}" viewBox="0 0 32 32"><polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="#3B6D11" opacity="0.3"/><polygon points="16,6 23,10 23,22 16,26 9,22 9,10" fill="#3B6D11"/><polyline points="16,22 16,12" stroke="#C0DD97" stroke-width="2.5" stroke-linecap="round"/><polyline points="12,16 16,12 20,16" stroke="#C0DD97" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-    <span style="font-size:${fs}px;font-weight:600;color:#4a9e6a;">+${n}</span></span>`;
-  const vpSvg = (n) => `<span style="display:inline-flex;align-items:center;gap:2px;white-space:nowrap;">
-    <svg width="${size}" height="${size}" viewBox="0 0 32 32"><path d="M16 3 C16 3 22 8 22 17 L19 20 L13 20 L10 17 C10 8 16 3 16 3Z" fill="#7F77DD"/><circle cx="16" cy="17" r="3" fill="#534AB7"/><path d="M10 17 L7 22 L11 20Z" fill="#534AB7" opacity="0.7"/><path d="M22 17 L25 22 L21 20Z" fill="#534AB7" opacity="0.7"/><path d="M13 22 L14 27 L16 24 L18 27 L19 22Z" fill="#7F77DD" opacity="0.8"/></svg>
-    <span style="font-size:${fs}px;font-weight:600;color:#7a5fc9;">${n}</span></span>`;
+  const coinSvg = (n) => `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size*1.8}px;height:${size*1.8}px;border-radius:50%;background:#c9933a;font-size:${fs}px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);flex-shrink:0;">${n}</span>`;
+  const incomeSvg = (n) => `<span style="display:inline-flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;">
+    <svg width="${size*1.8}" height="${size*1.8}" viewBox="0 0 32 32"><polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="#3B6D11"/></svg>
+    <span style="position:absolute;font-size:${fs}px;font-weight:800;color:#C0DD97;">${n}</span>
+    </span>`;
+  const vpSvg = (n) => `<span style="display:inline-flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;">
+    <svg width="${size*1.8}" height="${size*1.8}" viewBox="0 0 32 32"><path d="M16 2 C16 2 24 8 24 18 L20 22 L12 22 L8 18 C8 8 16 2 16 2Z" fill="#7F77DD"/><circle cx="16" cy="17" r="4" fill="#534AB7"/><path d="M8 18 L4 25 L11 22Z" fill="#534AB7" opacity="0.8"/><path d="M24 18 L28 25 L21 22Z" fill="#534AB7" opacity="0.8"/><path d="M12 22 L13 30 L16 26 L19 30 L20 22Z" fill="#7F77DD" opacity="0.9"/></svg>
+    <span style="position:absolute;font-size:${fs}px;font-weight:800;color:#fff;">${n}</span>
+    </span>`;
   const parts = [];
   if (r.credits) parts.push(coinSvg(r.credits));
   if (r.income)  parts.push(incomeSvg(r.income));
@@ -705,12 +795,28 @@ function chooseDiceMode(mode) {
   const sectors = mode==='split' ? (d1===d2 ? [d1] : [d1,d2]) : [d1+d2];
   const cp = G.players[G.currentPlayer];
 
-  sectors.forEach(s => applyReward(cp, cp.sectors[s].stationed.station));
-  addLog(`${cp.name} activated sector(s) ${sectors.join(' & ')}`);
+  // Collect and log active player rewards
+  let cpGains = [];
+  sectors.forEach(s => {
+    const r = cp.sectors[s].stationed.station;
+    applyReward(cp, r);
+    const summary = rewardSummary(r);
+    if (summary) cpGains.push('S' + s + ': ' + summary);
+  });
+  addLog(cp.name + ' activated S' + sectors.join('&') + (cpGains.length ? ' — ' + cpGains.join(', ') : ''));
 
+  // Collect and log other players' deployed rewards
   G.players.forEach((op,i) => {
     if (i===G.currentPlayer) return;
-    sectors.forEach(s => op.sectors[s].deployed.forEach(d => applyReward(op, d.deployed)));
+    let opGains = [];
+    sectors.forEach(s => {
+      op.sectors[s].deployed.forEach(d => {
+        applyReward(op, d.deployed);
+        const summary = rewardSummary(d.deployed);
+        if (summary) opGains.push('S' + s + ': ' + summary);
+      });
+    });
+    if (opGains.length) addLog(op.name + ' collected — ' + opGains.join(', '));
   });
 
   G.phase = 'buy';
@@ -776,6 +882,32 @@ function endGame() {
   document.getElementById('final-scores').innerHTML = '<h2>Final Scores</h2>' +
     sorted.map((p,i) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);">
       <span>${i+1}. ${p.name}</span><span class="badge purple">${p.vp} VP</span></div>`).join('');
+}
+
+function buyColony(sector) {
+  const cp = G.players[G.currentPlayer];
+  const colony = COLONY_CARDS.find(c => c.sector === sector);
+  if (!colony || G.phase !== 'buy' || cp.credits < colony.cost || G.colonyPurchased[sector]) return;
+  cp.credits -= colony.cost;
+  cp.vp += colony.vp;
+  G.colonyPurchased[sector] = cp.name;
+  // Lock that sector — mark stationed as colony-locked
+  cp.sectors[sector].colonyLocked = true;
+  addLog(`${cp.name} bought Colony Card S${sector} for ${colony.cost}C — gained ${colony.vp} VP!`);
+  endTurn();
+}
+
+function rewardSummary(r) {
+  if (!r) return '';
+  const p = [];
+  if (r.credits) p.push('+' + r.credits + 'C');
+  if (r.income)  p.push('+' + r.income + ' Inc');
+  if (r.vp)      p.push('+' + r.vp + ' VP');
+  if (r.arrow === 'both')  p.push('←→');
+  if (r.arrow === 'left')  p.push('←');
+  if (r.arrow === 'right') p.push('→');
+  if (r.special) p.push(r.special);
+  return p.join(', ');
 }
 
 function addLog(msg) { G.log.unshift(msg); if (G.log.length > 20) G.log.pop(); }
@@ -867,12 +999,56 @@ function renderMain() {
     else highlighted.push(total);
   }
 
-  // Centered shipyard
+  // Centered shipyard with colony toggle
   const ranges = ['2–5C','6–9C','12–14C'];
   const lvlColors = ['#1a3a5c','#1a3d1a','#2d1a4a'];
   const lvlBorders = ['#2a5a8c','#2a5d2a','#4d2a7a'];
-  html += '<div class="card" style="margin-top:8px;text-align:center;"><h2 style="text-align:center;">Shipyard</h2>';
-  [1,2,3].forEach(function(lvl) {
+  const shopView = G.shopView || 'ships';
+  html += '<div class="card" style="margin-top:8px;">';
+  html += '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;">';
+    html += "<button onclick=\"G.shopView='colony';renderGame();\" style=\"padding:6px 14px;font-size:12px;font-weight:600;border-radius:6px;border:1px solid " + (shopView==="colony" ? "#534AB7" : "var(--border)") + ";background:" + (shopView==="colony" ? "var(--purple-bg)" : "transparent") + ";color:" + (shopView==="colony" ? "var(--purple)" : "var(--text2)") + ";cursor:pointer;\">\uD83D\uDE80 Colony</button>";
+  html += "<h2 style=\"margin:0;\">Shipyard</h2>";
+  html += "<button onclick=\"G.shopView='ships';renderGame();\" style=\"padding:6px 14px;font-size:12px;font-weight:600;border-radius:6px;border:1px solid " + (shopView==="ships" ? "var(--blue)" : "var(--border)") + ";background:" + (shopView==="ships" ? "var(--blue-bg)" : "transparent") + ";color:" + (shopView==="ships" ? "var(--blue)" : "var(--text2)") + ";cursor:pointer;\">\uD83D\uDEF8 Ships</button>";
+  html += '</div>';
+
+  if (shopView === 'colony') {
+    // Colony cards view
+    html += '<div style="font-size:10px;color:var(--text2);text-align:center;margin-bottom:8px;">Purchase to lock a sector and gain VP immediately. Locked sectors cannot be upgraded.</div>';
+    html += '<div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;justify-content:center;">';
+    COLONY_CARDS.forEach(function(colony) {
+      const purchased = G.colonyPurchased && G.colonyPurchased[colony.sector];
+      const canBuy = isCurrent && G.phase === 'buy' && !purchased && cp.credits >= colony.cost;
+      const showBtn = isCurrent && G.phase === 'buy' && !purchased;
+      const alreadyOwned = cp.sectors[colony.sector] && cp.sectors[colony.sector].colonyLocked;
+      const colonyBuyBtn = showBtn ? '<button class="btn sm ' + (canBuy?'primary':'') + '" ' + (canBuy?'':'disabled') + ' onclick="buyColony(' + colony.sector + ')" style="width:100%;padding:4px;font-size:11px;border-radius:4px;">Buy</button>' : '';
+      html += '<div style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;opacity:' + (purchased?'0.55':'1') + ';">'
+        // Artwork area
+        + '<div style="background:linear-gradient(160deg,#1a0a28 0%,#2d1040 50%,#0d0818 100%);padding:6px 6px 4px;position:relative;min-height:72px;display:flex;flex-direction:column;justify-content:flex-end;">'
+        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
+        // Cost top-left
+        + '<div style="position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + colony.cost + '</div>'
+        // Sector top-right
+        + '<div style="position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + colony.sector + '</div>'
+        + '<div style="text-align:center;font-size:26px;margin-bottom:2px;">🌍</div>'
+        + '<div style="background:#1a0a2d;margin:0 -6px -4px;padding:3px 5px;text-align:center;">'
+        + '<div style="font-size:8px;font-weight:700;color:#e0e0e0;">Colony Card</div>'
+        + '<div style="font-size:7px;color:#8877bb;">S' + colony.sector + ' · Locks sector</div>'
+        + '</div>'
+        + '</div>'
+        // VP reward — purple
+        + '<div style="background:#2d1a4a;padding:5px 6px;display:flex;align-items:center;justify-content:center;gap:4px;min-height:28px;border-top:1px solid rgba(255,255,255,0.08);">'
+        + rewardIcons({vp:colony.vp}, 12)
+        + '</div>'
+        // Owned/buy
+        + '<div style="background:#0a0e1a;padding:4px 6px;">'
+        + (purchased ? '<div style="font-size:8px;color:var(--text2);text-align:center;">Owned by ' + purchased + '</div>' : colonyBuyBtn)
+        + '</div>'
+        + '</div>';
+    });
+    html += '</div>';
+  } else {
+    // Ships view
+    [1,2,3].forEach(function(lvl) {
     const cards = G.shipyard['l' + lvl];
     if (!cards.length) return;
     const canBuyAny = isCurrent && G.phase === 'buy';
@@ -882,24 +1058,47 @@ function renderMain() {
       const canBuy = canBuyAny && cp.credits >= card.cost;
       const showBtn = canBuyAny;
       const buyBtn = showBtn ? '<button class="btn sm ' + (canBuy ? 'primary' : '') + '" ' + (canBuy ? '' : 'disabled') + ' onclick="buyCard(\'' + card.id + '\')" style="padding:3px 8px;font-size:11px;">Buy</button>' : '';
-      html += '<div style="min-width:90px;max-width:90px;flex-shrink:0;background:' + lvlColors[lvl-1] + ';border:0.5px solid ' + lvlBorders[lvl-1] + ';border-radius:8px;padding:8px 6px;display:flex;flex-direction:column;gap:4px;box-shadow:0 2px 6px rgba(0,0,0,0.3);">'
-        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">'
-        + '<span style="font-size:10px;font-weight:700;color:var(--gold);">' + card.cost + 'C</span>'
-        + '<span style="font-size:9px;font-weight:700;color:var(--text2);">S' + card.sector + '</span>'
+      const artBg = ['linear-gradient(160deg,#0a1628 0%,#1a2a5c 50%,#0d1f3c 100%)',
+                     'linear-gradient(160deg,#0d1a0d 0%,#1a3d1a 50%,#0a1a0a 100%)',
+                     'linear-gradient(160deg,#1a0a28 0%,#3d1a5c 50%,#1a0d3c 100%)'][lvl-1];
+      const nameBarBg = ['#0a1a3a','#0a1a0a','#1a0a2d'][lvl-1];
+      const shipBuyBtn = showBtn ? '<button class="btn sm ' + (canBuy ? 'primary' : '') + '" ' + (canBuy ? '' : 'disabled') + ' onclick="buyCard(\'' + card.id + '\')" style="width:100%;padding:4px;font-size:11px;margin-top:4px;border-radius:4px;">Buy</button>' : '';
+      html += '<div style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;">'
+
+        // Artwork area
+        + '<div style="background:' + artBg + ';padding:6px 6px 4px;position:relative;min-height:72px;display:flex;flex-direction:column;justify-content:flex-end;">'
+        // Stars decoration
+        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
+        // Cost circle top-left
+        + '<div style="position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.cost + '</div>'
+        // Sector circle top-right
+        + '<div style="position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
+        // Ship emoji as artwork placeholder
+        + '<div style="text-align:center;font-size:26px;margin-bottom:2px;">🚀</div>'
+        // Name bar
+        + '<div style="background:' + nameBarBg + ';margin:0 -6px -4px;padding:3px 5px;text-align:center;">'
+        + '<div style="font-size:8px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
+        + '<div style="font-size:7px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'') + '</div>'
         + '</div>'
-        + '<div style="font-size:11px;font-weight:600;color:var(--text);line-height:1.2;">' + card.name + '</div>'
-        + '<div style="display:flex;flex-direction:column;gap:2px;margin-top:2px;">'
-        + '<div style="font-size:9px;color:var(--text2);">Active</div>'
-        + '<div>' + rewardIcons(card.station) + '</div>'
-        + '<div style="font-size:9px;color:var(--text2);margin-top:2px;">Passive</div>'
-        + '<div>' + rewardIcons(card.deployed) + '</div>'
         + '</div>'
-        + '<div style="margin-top:4px;">'
-        + buyBtn
-        + '</div></div>';
+
+        // Station reward — blue
+        + '<div style="background:#1a3a5c;padding:5px 6px;display:flex;align-items:center;justify-content:center;gap:4px;min-height:28px;border-top:1px solid rgba(255,255,255,0.08);">'
+        + rewardIcons(card.station, 12)
+        + '</div>'
+
+        // Deployed reward — red
+        + '<div style="background:#5c1a1a;padding:5px 6px;display:flex;align-items:center;justify-content:center;gap:4px;min-height:28px;border-top:1px solid rgba(255,255,255,0.08);">'
+        + rewardIcons(card.deployed, 12)
+        + '</div>'
+
+        // Buy button
+        + (showBtn ? '<div style="background:#0a0e1a;padding:4px 6px;">' + shipBuyBtn + '</div>' : '')
+        + '</div>';
     });
     html += '</div>';
-  });
+    });
+  } // end ships view
   html += '</div>';
 
   // Sectors (3/4 right) + Stats panel (1/4 left) side by side
@@ -932,11 +1131,35 @@ function renderMain() {
   for (let s=1; s<=12; s++) {
     const sec = vp.sectors[s];
     const isHL = highlighted.includes(s);
-    const depIconRs = sec.deployed.map(d => rewardIcons(d.deployed, 20)).filter(r => r);
-    html += '<div class="sector ' + (isHL ? 'highlighted' : '') + '" title="S' + s + ': ' + sec.stationed.name + '">'
-      + '<div class="sec-num">S' + s + '</div>'
-      + '<div class="sec-reward">' + rewardIcons(sec.stationed.station, 20) + '</div>'
-      + (depIconRs.length ? '<div class="sec-deployed">' + depIconRs.join(' ') + '</div>' : '')
+    const stationed = sec.stationed;
+    // Art bg: level 0=starting(dark navy), 1=blue, 2=green, 3=purple
+    const artBgs = [
+      'linear-gradient(160deg,#0a1020 0%,#0d1830 100%)',
+      'linear-gradient(160deg,#0a1628 0%,#1a2a5c 50%,#0d1f3c 100%)',
+      'linear-gradient(160deg,#0d1a0d 0%,#1a3d1a 50%,#0a1a0a 100%)',
+      'linear-gradient(160deg,#1a0a28 0%,#3d1a5c 50%,#1a0d3c 100%)'
+    ];
+    const nameBgs = ['#080e1a','#0a1a3a','#0a1a0a','#1a0a2d'];
+    const lvl = stationed.level || 0;
+    const artBg = artBgs[Math.min(lvl,3)];
+    const nameBg = nameBgs[Math.min(lvl,3)];
+    // Stacked passive rows (deployed cards, bottom to top = first deployed at bottom)
+    const passiveRows = sec.deployed.map(function(d) {
+      return '<div class="sec-passive-row">' + rewardIcons(d.deployed, 14) + '</div>';
+    }).join('');
+    html += '<div class="sector ' + (isHL ? 'highlighted' : '') + '">'
+      + '<div class="sec-art" style="background:' + artBg + ';">'
+      + '<div class="sec-stars"></div>'
+      + (stationed.cost ? '<div class="sec-cost">' + stationed.cost + '</div>' : '')
+      + '<div class="sec-num">' + s + '</div>'
+      + '<div class="sec-ship-icon">🚀</div>'
+      + '<div class="sec-namebar" style="background:' + nameBg + ';">'
+      + '<div class="sec-name">' + stationed.name + '</div>'
+      + '<div class="sec-type">' + (stationed.type||'Starting Card') + '</div>'
+      + '</div>'
+      + '</div>'
+      + '<div class="sec-station">' + rewardIcons(stationed.station, 16) + '</div>'
+      + passiveRows
       + '</div>';
   }
   html += '</div></div>';
@@ -963,10 +1186,25 @@ function toggleMusic() {
     musicPlaying = false;
     if (btn) btn.textContent = '🔇';
   } else {
-    bgAudio.play().then(() => {
-      musicPlaying = true;
-      if (btn) btn.textContent = '🔊';
-    }).catch(() => {});
+    bgAudio.currentTime = bgAudio.currentTime || 0;
+    const playPromise = bgAudio.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        musicPlaying = true;
+        if (btn) btn.textContent = '🔊';
+      }).catch((e) => {
+        // Try resuming AudioContext if suspended
+        if (window.AudioContext || window.webkitAudioContext) {
+          const ac = new (window.AudioContext || window.webkitAudioContext)();
+          ac.resume().then(() => {
+            bgAudio.play().then(() => {
+              musicPlaying = true;
+              if (btn) btn.textContent = '🔊';
+            }).catch(() => {});
+          });
+        }
+      });
+    }
   }
 }
 
