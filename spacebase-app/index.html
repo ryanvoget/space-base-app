@@ -171,6 +171,7 @@
       display: flex;
       flex-direction: row;
       gap: 5px;
+      align-items: flex-end;
       margin: 6px 0;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -178,21 +179,27 @@
       padding-bottom: 4px;
     }
     .sectors-grid::-webkit-scrollbar { display: none; }
-    .sector {
+    .sector-wrapper {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      min-width: 175px;
+      max-width: 175px;
       border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+    }
+    .sector-wrapper.highlighted {
+      border: 2px solid var(--blue);
+      box-shadow: 0 0 12px rgba(58,143,212,0.5);
+    }
+    .sector {
       overflow: hidden;
       display: flex;
       flex-direction: column;
       height: 252px;
-      min-width: 175px;
-      max-width: 175px;
       flex-shrink: 0;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.5);
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-    .sector.highlighted {
-      border: 2px solid var(--blue);
-      box-shadow: 0 0 12px rgba(58,143,212,0.5);
     }
     .sector .sec-art {
       flex: 1;
@@ -251,16 +258,16 @@
     .sector .sec-station {
       background: #1a3a5c;
       padding: 6px 8px;
-      display: flex; align-items: center; justify-content: center;
-      gap: 4px; min-height: 32px;
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+      gap: 4px; height: 90px; overflow: hidden;
       border-top: 1px solid rgba(255,255,255,0.08);
       flex-shrink: 0;
     }
-    .sector .sec-passive-row {
+    .sec-passive-row {
       background: #5c1a1a;
       padding: 5px 8px;
-      display: flex; align-items: center; justify-content: center;
-      gap: 4px; min-height: 28px;
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+      gap: 4px; height: 50px; overflow: hidden;
       border-top: 1px solid rgba(255,255,255,0.08);
       flex-shrink: 0;
     }
@@ -350,21 +357,21 @@
       <div class="setup-header">
         <div class="icon">🚀</div>
         <h1>Space Base</h1>
-        <p style="margin-top: 4px;">Pass-and-play · 2–5 commanders</p>
+        <p style="margin-top: 4px;">Solo vs AI · 2–5 players</p>
       </div>
 
       <div class="card">
-        <h2>Number of players</h2>
+        <h2>Number of opponents</h2>
         <select id="num-players" onchange="initSetup()">
-          <option value="2">2 players</option>
-          <option value="3" selected>3 players</option>
-          <option value="4">4 players</option>
-          <option value="5">5 players</option>
+          <option value="2">1 opponent (2 total)</option>
+          <option value="3" selected>2 opponents (3 total)</option>
+          <option value="4">3 opponents (4 total)</option>
+          <option value="5">4 opponents (5 total)</option>
         </select>
       </div>
 
       <div class="card">
-        <h2>Player names</h2>
+        <h2>Your name</h2>
         <div id="player-names-container"></div>
       </div>
 
@@ -452,12 +459,12 @@ const SHIP_CARDS = [
   { id:'l1_40', level:1, sector:9,  cost:5, name:'U.E.S. Parker 8635-F',       type:'Wells Class Star Cruiser',        station:{"arrow": "both"},              deployed:{"arrow": "both"} },
   { id:'l1_41', level:1, sector:10, cost:5, name:'U.E.S. Shaw 1873-C',         type:'Wells Class Star Cruiser',        station:{"arrow": "both"},              deployed:{"arrow": "both"} },
   { id:'l1_42', level:1, sector:11, cost:5, name:'U.E.S. Thornton 8524-G',     type:'Wells Class Star Cruiser',        station:{"arrow": "both"},              deployed:{"arrow": "both"} },
-  { id:'l1_43', level:1, sector:5,  cost:4, name:'U.E.S. Aleksandrov 5155-G',  type:'Williamson Class Command Ship',   station:{"charge": 1},                  deployed:{"charge": 2} },
-  { id:'l1_44', level:1, sector:4,  cost:4, name:'U.E.S. Brandenstein 3161-C', type:'Williamson Class Command Ship',   station:{"charge": 1},                  deployed:{"charge": 2} },
-  { id:'l1_45', level:1, sector:1,  cost:4, name:'U.E.S. Fabian 4787-B',       type:'Williamson Class Command Ship',   station:{"charge": 1},                  deployed:{"charge": 2} },
-  { id:'l1_46', level:1, sector:6,  cost:4, name:'U.E.S. Gardner 7506-E',      type:'Williamson Class Command Ship',   station:{"charge": 1},                  deployed:{"charge": 2} },
-  { id:'l1_47', level:1, sector:2,  cost:4, name:'U.E.S. Ride 3066-E',         type:'Williamson Class Command Ship',   station:{"charge": 1},                  deployed:{"charge": 2} },
-  { id:'l1_48', level:1, sector:3,  cost:4, name:'U.E.S. Thagard 4684-B',      type:'Williamson Class Command Ship',   station:{"charge": 1},                  deployed:{"charge": 2} },
+  { id:'l1_43', level:1, sector:5,  cost:4, name:'U.E.S. Aleksandrov 5155-G',  type:'Williamson Class Command Ship',   station:{chargeMax:1,special:"+1 next roll"},  deployed:{chargeMax:1,special:"+1 next roll"} },
+  { id:'l1_44', level:1, sector:4,  cost:4, name:'U.E.S. Brandenstein 3161-C', type:'Williamson Class Command Ship',   station:{chargeMax:1,special:"+1 next roll"},  deployed:{chargeMax:1,special:"+1 next roll"} },
+  { id:'l1_45', level:1, sector:1,  cost:4, name:'U.E.S. Fabian 4787-B',       type:'Williamson Class Command Ship',   station:{chargeMax:1,special:"+1 next roll"},  deployed:{chargeMax:1,special:"+1 next roll"} },
+  { id:'l1_46', level:1, sector:6,  cost:4, name:'U.E.S. Gardner 7506-E',      type:'Williamson Class Command Ship',   station:{chargeMax:1,special:"+1 next roll"},  deployed:{chargeMax:1,special:"+1 next roll"} },
+  { id:'l1_47', level:1, sector:2,  cost:4, name:'U.E.S. Ride 3066-E',         type:'Williamson Class Command Ship',   station:{chargeMax:1,special:"+1 next roll"},  deployed:{chargeMax:1,special:"+1 next roll"} },
+  { id:'l1_48', level:1, sector:3,  cost:4, name:'U.E.S. Thagard 4684-B',      type:'Williamson Class Command Ship',   station:{chargeMax:1,special:"+1 next roll"},  deployed:{chargeMax:1,special:"+1 next roll"} },
     // Level 2 — real cards from card list
   { id:'l2_01', level:2, sector:5,  cost:8, name:"U.E.S. Brand 5208-D",        type:"Asimov Class Exploration Carrier",    station:{credits:3},              deployed:{vp:1} },
   { id:'l2_02', level:2, sector:11, cost:7, name:"U.E.S. Glazkov 3371-B",      type:"Asimov Class Exploration Carrier",    station:{credits:10},             deployed:{vp:4} },
@@ -591,22 +598,18 @@ function shuffle(arr) {
 
 // ─── SETUP ───────────────────────────────────────────────────────────────────
 function initSetup() {
-  const n = parseInt(document.getElementById('num-players').value);
   const c = document.getElementById('player-names-container');
   c.innerHTML = '';
-  for (let i = 0; i < n; i++) {
-    const d = document.createElement('div');
-    d.style.marginBottom = '8px';
-    d.innerHTML = `
-      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">Player ${i+1}</label>
-      <input class="name-input" type="text" id="pname-${i}" value="Commander ${i+1}" autocomplete="off">`;
-    c.appendChild(d);
-  }
+  const d = document.createElement('div');
+  d.innerHTML = `<label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">Your name</label>
+    <input class="name-input" type="text" id="pname-0" value="Commander" autocomplete="off">`;
+  c.appendChild(d);
 }
 
 function startGame() {
   const n = parseInt(document.getElementById('num-players').value);
-  const names = Array.from({length:n}, (_,i) => document.getElementById(`pname-${i}`).value || `Commander ${i+1}`);
+  const humanName = document.getElementById('pname-0').value || 'Commander';
+  const names = [humanName, ...Array.from({length:n-1}, (_,i) => 'CPU ' + (i+1))];
 
   const l1deck = shuffle(SHIP_CARDS.filter(c => c.level===1));
   const l2deck = shuffle(SHIP_CARDS.filter(c => c.level===2));
@@ -636,6 +639,9 @@ function startGame() {
     },
     log: [],
     endTriggered: false, chosenDiceMode: null,
+    pendingArrows: [], pendingAbility: null, pendingClaim: null,
+    extraBuys: 0, extraBuyFilter: null,
+    nextRollBonus: 0, nextRollTotal: null, rollBonus: 0, rollTotal: null,
   };
 
   show('reveal-screen');
@@ -649,45 +655,49 @@ function renderReveal() {
   const oldCard = STARTING_CARDS.find(c => c.sector === card.sector);
   const el = document.getElementById('reveal-content');
 
-  // Build card in card-anatomy format — wider for reveal screen
+  // Build card matching shop card format, scaled up for reveal screen
+  const revealStaBg = card.station && isGreenAbility(card.station.special || '') ? '#1a3a1a' : '#1a3a5c';
+  const revealDepBg = card.deployed && isGreenAbility(card.deployed.special || '') ? '#1a3a1a' : '#5c1a1a';
   const cardHtml =
-    '<div style="width:160px;border-radius:12px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);display:flex;flex-direction:column;margin:0 auto 16px;">'
+    '<div style="width:150px;border-radius:12px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);display:flex;flex-direction:column;margin:0 auto 16px;">'
     // Art area
-    + '<div style="background:linear-gradient(160deg,#0a1628 0%,#1a2a5c 50%,#0d1f3c 100%);padding:10px 10px 6px;position:relative;min-height:110px;display:flex;flex-direction:column;justify-content:flex-end;">'
+    + '<div style="background:linear-gradient(160deg,#0a1628 0%,#1a2a5c 50%,#0d1f3c 100%);padding:10px 10px 6px;position:relative;min-height:100px;display:flex;flex-direction:column;justify-content:flex-end;">'
     + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:14px 14px;opacity:0.15;pointer-events:none;"></div>'
     // Cost circle top-left
-    + '<div style="position:absolute;top:8px;left:8px;width:30px;height:30px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.cost + '</div>'
+    + '<div style="position:absolute;top:8px;left:8px;width:28px;height:28px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.cost + '</div>'
     // Sector circle top-right
-    + '<div style="position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
+    + '<div style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
     // Ship emoji
-    + '<div style="text-align:center;font-size:40px;margin-bottom:4px;">🚀</div>'
+    + '<div style="text-align:center;font-size:36px;margin-bottom:4px;">🚀</div>'
     // Name bar
-    + '<div style="background:#0a1a3a;margin:0 -10px -6px;padding:5px 8px;text-align:center;">'
-    + '<div style="font-size:10px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
-    + '<div style="font-size:8px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'Level 1') + '</div>'
+    + '<div style="background:#0a1a3a;margin:0 -10px -6px;padding:4px 8px;text-align:center;">'
+    + '<div style="font-size:9px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
+    + '<div style="font-size:8px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'') + '</div>'
     + '</div>'
     + '</div>'
-    // Station reward — blue
-    + '<div style="background:#1a3a5c;padding:8px;display:flex;flex-direction:column;align-items:center;gap:3px;border-top:1px solid rgba(255,255,255,0.08);">'
-    + '<div style="font-size:9px;color:#6a9fd4;text-transform:uppercase;letter-spacing:0.5px;">Station Reward</div>'
-    + '<div>' + rewardIcons(card.station, 16) + '</div>'
+    // Station reward — blue/green, fixed height like shop
+    + '<div style="background:' + revealStaBg + ';padding:8px 10px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;min-height:60px;border-top:1px solid rgba(255,255,255,0.08);">'
+    + rewardIcons(card.station, shopActiveIconSize(card.station))
     + '</div>'
-    // Deployed reward — red
-    + '<div style="background:#5c1a1a;padding:8px;display:flex;flex-direction:column;align-items:center;gap:3px;border-top:1px solid rgba(255,255,255,0.08);">'
-    + '<div style="font-size:9px;color:#d46a6a;text-transform:uppercase;letter-spacing:0.5px;">Deployed Reward</div>'
-    + '<div>' + rewardIcons(card.deployed, 16) + '</div>'
-    + '</div>'
+    // Deployed reward — red/green, upside down like shop
+    + '<div style="background:' + revealDepBg + ';padding:5px 8px;display:flex;align-items:center;justify-content:center;min-height:38px;border-top:1px solid rgba(255,255,255,0.08);">'
+    + '<div style="transform:rotate(180deg);display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:3px;width:100%;">'
+    + rewardIcons(card.deployed, shopPassiveIconSize(card.deployed))
+    + '</div></div>'
     + '</div>';
 
+  const isAIReveal = i > 0;
   el.innerHTML =
     '<div style="text-align:center;width:100%;padding:0 16px;">'
-    + '<div style="font-size:12px;color:var(--text2);margin-bottom:4px;">Player ' + (i+1) + ' of ' + G.players.length + '</div>'
+    + '<div style="font-size:12px;color:var(--text2);margin-bottom:4px;">' + (isAIReveal ? 'CPU Opponent ' + i : 'You') + ' · ' + (i+1) + ' of ' + G.players.length + '</div>'
     + '<div style="font-size:20px;font-weight:600;margin-bottom:16px;">' + player.name + '</div>'
-    + '<div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Your starting ship:</div>'
+    + '<div style="font-size:12px;color:var(--text2);margin-bottom:12px;">' + (isAIReveal ? player.name + '\'s starting ship:' : 'Your starting ship:') + '</div>'
     + cardHtml
     + '<div style="font-size:11px;color:var(--text2);margin-bottom:6px;">Replaces S' + card.sector + ' starting card · Costs <b style="color:var(--gold);">' + card.cost + 'C</b></div>'
-    + '<button class="btn primary block" onclick="confirmStartCard()" style="padding:14px;font-size:15px;">Confirm Starting Card</button>'
+    + (isAIReveal ? '<div style="font-size:13px;color:var(--text2);font-style:italic;padding:10px 0;">Auto-confirming...</div>' : '<button class="btn primary block" onclick="confirmStartCard()" style="padding:14px;font-size:15px;">Confirm Starting Card</button>')
     + '</div>';
+
+  if (isAIReveal) setTimeout(confirmStartCard, 1200);
 }
 
 function confirmStartCard() {
@@ -696,7 +706,7 @@ function confirmStartCard() {
   const card = G.drawnCards[i];
 
   p.sectors[card.sector].deployed.push({...p.sectors[card.sector].stationed});
-  p.sectors[card.sector].stationed = {...card};
+  p.sectors[card.sector].stationed = {...card, chargeCount: 0};
   p.credits = Math.max(0, p.credits - card.cost);
   p._startSector = card.sector;
 
@@ -724,7 +734,7 @@ function confirmStartCard() {
 
   G.currentPlayer = startPlayerIdx;
   G.startPlayer = startPlayerIdx;
-  G.viewingPlayer = startPlayerIdx;
+  G.viewingPlayer = 0;
   G.colonyPurchased = {};  // sector -> playerName
   G.shopView = 'ships';   // 'ships' or 'colony'
   G.log = [`Game started! ${G.players[startPlayerIdx].name} goes first.`];
@@ -734,6 +744,58 @@ function confirmStartCard() {
 }
 
 // ─── GAME LOGIC ──────────────────────────────────────────────────────────────
+function rewardItemCount(r) {
+  if (!r) return 0;
+  return [r.credits, r.income, r.vp, r.arrow, r.special, r.chargeMax].filter(Boolean).length;
+}
+function shopPassiveIconSize(r) {
+  if (!r) return 12;
+  const n = rewardItemCount(r);
+  const sl = r.special ? r.special.length : 0;
+  if (sl > 14) return 7;
+  if (sl > 8)  return 8;
+  if (n <= 1)  return 12;
+  if (n === 2) return 11;
+  if (n === 3) return 9;
+  return 8;
+}
+function shopActiveIconSize(r) {
+  if (!r) return 13;
+  const n = rewardItemCount(r);
+  const sl = r.special ? r.special.length : 0;
+  const extraCharge = Math.max(0, (r.chargeMax || 0) - 1);
+  const effectiveN = n + extraCharge;
+  if (effectiveN >= 5) return 9;
+  if (sl > 14) return 10;
+  if (sl > 8 || effectiveN >= 4) return 11;
+  if (n === 3) return 12;
+  if (n <= 1)  return 14;
+  return 13;
+}
+function boardActiveIconSize(r) {
+  if (!r) return 26;
+  const n = rewardItemCount(r);
+  const sl = r.special ? r.special.length : 0;
+  const extraCharge = Math.max(0, (r.chargeMax || 0) - 1);
+  const effectiveN = n + extraCharge;
+  if (effectiveN >= 5) return 17;
+  if (sl > 14) return 19;
+  if (sl > 8 || effectiveN >= 4) return 21;
+  if (n === 3) return 23;
+  if (n <= 1)  return 27;
+  return 25;
+}
+function boardPassiveIconSize(r) {
+  if (!r) return 22;
+  const n = rewardItemCount(r);
+  const sl = r.special ? r.special.length : 0;
+  if (sl > 14) return 14;
+  if (sl > 8)  return 15;
+  if (n <= 1)  return 22;
+  if (n === 2) return 20;
+  if (n === 3) return 17;
+  return 15;
+}
 function rewardStr(r) {
   if (!r) return '—';
   const p = [];
@@ -748,7 +810,7 @@ function rewardStr(r) {
   return p.join(' ') || '—';
 }
 
-function rewardIcons(r, size=12) {
+function rewardIcons(r, size=12, chargeCount=0) {
   if (!r) return '';
   const fs = Math.round(size * 0.92);
   const coinSvg = (n) => `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size*1.8}px;height:${size*1.8}px;border-radius:50%;background:#c9933a;font-size:${fs}px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);flex-shrink:0;">${n}</span>`;
@@ -764,12 +826,22 @@ function rewardIcons(r, size=12) {
   if (r.credits) parts.push(coinSvg(r.credits));
   if (r.income)  parts.push(incomeSvg(r.income));
   if (r.vp)      parts.push(vpSvg(r.vp));
-  if (r.arrow === 'both')  parts.push(`<span style="font-size:${fs}px;font-weight:700;color:#3a8fd4;">←→</span>`);
-  if (r.arrow === 'left')  parts.push(`<span style="font-size:${fs}px;font-weight:700;color:#3a8fd4;">←</span>`);
-  if (r.arrow === 'right') parts.push(`<span style="font-size:${fs}px;font-weight:700;color:#3a8fd4;">→</span>`);
-  if (r.special) parts.push(`<span style="font-size:${Math.max(9,fs-1)}px;color:#c9a43a;font-style:italic;line-height:1.2;">${r.special}</span>`);
+  if (r.arrow === 'both')  parts.push(`<span style="font-size:${Math.round(size*1.7)}px;font-weight:700;color:#3a8fd4;line-height:1;">←→</span>`);
+  if (r.arrow === 'left')  parts.push(`<span style="font-size:${Math.round(size*1.7)}px;font-weight:700;color:#3a8fd4;line-height:1;">←</span>`);
+  if (r.arrow === 'right') parts.push(`<span style="font-size:${Math.round(size*1.7)}px;font-weight:700;color:#3a8fd4;line-height:1;">→</span>`);
+  if (r.special) {
+    const specColor = isGreenAbility(r.special) ? 'var(--green)' : '#c9a43a';
+    parts.push(`<span style="font-size:${Math.max(6,fs-1)}px;color:${specColor};font-style:italic;line-height:1.2;text-align:center;word-break:break-word;">${r.special}</span>`);
+  }
   if (r.chargeMax) {
-    const cubes = Array(r.chargeMax).fill('<span style="display:inline-block;width:' + Math.round(fs*1.1) + 'px;height:' + Math.round(fs*1.1) + 'px;border:1.5px solid #888;border-radius:2px;background:transparent;vertical-align:middle;margin:0 1px;"></span>').join('');
+    const count = chargeCount;
+    const cw = Math.round(fs*1.1);
+    const cubes = Array(r.chargeMax).fill(null).map((_, i) => {
+      const filled = i < count;
+      const bg = filled ? '#f0c040' : 'transparent';
+      const bc = filled ? '#c9a434' : '#888';
+      return `<span style="display:inline-block;width:${cw}px;height:${cw}px;border:1.5px solid ${bc};border-radius:2px;background:${bg};vertical-align:middle;margin:0 1px;"></span>`;
+    }).join('');
     parts.push(`<span style="display:inline-flex;align-items:center;gap:1px;white-space:nowrap;">${cubes}</span>`);
   }
   return parts.join('<span style="font-size:9px;color:var(--text2);margin:0 1px;"> </span>') || '—';
@@ -783,43 +855,133 @@ function applyReward(player, reward) {
 }
 
 function rollDice() {
-  G.dice = [Math.ceil(Math.random()*6), Math.ceil(Math.random()*6)];
-  G.phase = 'choose-dice';
-  addLog(`${G.players[G.currentPlayer].name} rolled ${G.dice[0]} + ${G.dice[1]} = ${G.dice[0]+G.dice[1]}`);
+  const sd = G.setDice || [null, null];
+  G.dice = [
+    sd[0] !== null ? sd[0] : Math.ceil(Math.random()*6),
+    sd[1] !== null ? sd[1] : Math.ceil(Math.random()*6)
+  ];
+  G.setDice = null;
+  G.rollBonus = G.nextRollBonus || 0;
+  G.rollTotal = G.nextRollTotal !== undefined ? G.nextRollTotal : null;
+  G.nextRollBonus = 0;
+  G.nextRollTotal = null;
+  G.phase = shouldOfferGreenBonus() ? 'post-roll-bonus' : 'choose-dice';
+  const base = G.dice[0] + G.dice[1];
+  const eff = G.rollTotal !== null ? G.rollTotal : base + G.rollBonus;
+  const bonusNote = G.rollTotal !== null ? ' (forced total: ' + eff + ')' : G.rollBonus > 0 ? ' (+' + G.rollBonus + ' bonus = ' + eff + ')' : '';
+  addLog(`${G.players[G.currentPlayer].name} rolled ${G.dice[0]} + ${G.dice[1]} = ${base}${bonusNote}`);
   renderGame();
 }
 
 function chooseDiceMode(mode) {
   G.chosenDiceMode = mode;
   const [d1,d2] = G.dice;
-  const sectors = mode==='split' ? (d1===d2 ? [d1] : [d1,d2]) : [d1+d2];
+  const effTotal = G.rollTotal !== null ? G.rollTotal : (d1 + d2 + (G.rollBonus || 0));
+  const sectors = mode==='split' ? [d1, d2] : [effTotal];
+  G.rollBonus = 0; G.rollTotal = null;
   const cp = G.players[G.currentPlayer];
+  const pendingArrows = [];
+  const pendingClaimQueue = [];
 
   // Collect and log active player rewards
   let cpGains = [];
   sectors.forEach(s => {
-    const r = cp.sectors[s].stationed.station;
+    const staCard = cp.sectors[s].stationed;
+    const r = staCard.station;
     applyReward(cp, r);
+    if (r && r.chargeMax) {
+      staCard.chargeCount = Math.min(r.chargeMax, (staCard.chargeCount || 0) + 1);
+    }
+    if (r && r.arrow) pendingArrows.push({pi: G.currentPlayer, sector: s, arrow: r.arrow, side: 'station'});
+    if (r && r.special && !r.chargeMax && /Claim/i.test(r.special)) {
+      pendingClaimQueue.push(...parseClaimQueue(r.special));
+    }
     const summary = rewardSummary(r);
     if (summary) cpGains.push('S' + s + ': ' + summary);
   });
   addLog(cp.name + ' activated S' + sectors.join('&') + (cpGains.length ? ' — ' + cpGains.join(', ') : ''));
 
   // Collect and log other players' deployed rewards
+  // During an AI turn, skip player 0 — they will choose their own passive sectors
+  const isAiTurn = G.currentPlayer !== 0;
   G.players.forEach((op,i) => {
     if (i===G.currentPlayer) return;
+    if (isAiTurn && i === 0) return;
     let opGains = [];
     sectors.forEach(s => {
       op.sectors[s].deployed.forEach(d => {
-        applyReward(op, d.deployed);
-        const summary = rewardSummary(d.deployed);
+        const depR = d.deployed;
+        applyReward(op, depR);
+        if (depR && depR.chargeMax) {
+          d.chargeCount = Math.min(depR.chargeMax, (d.chargeCount || 0) + 1);
+        }
+        if (depR && depR.arrow) {
+          const vt = getValidArrowTargets(i, s, depR.arrow, 'deployed');
+          if (vt.length > 0) pendingArrows.push({pi: i, sector: s, arrow: depR.arrow, side: 'deployed'});
+        }
+        const summary = rewardSummary(depR);
         if (summary) opGains.push('S' + s + ': ' + summary);
       });
     });
-    if (opGains.length) addLog(op.name + ' collected — ' + opGains.join(', '));
+    if (opGains.length) addLog(op.name + ' (passive) — ' + opGains.join(', '));
   });
 
-  G.phase = 'buy';
+  G.pendingArrows = pendingArrows;
+
+  if (pendingClaimQueue.length > 0) {
+    if (!isAiTurn) {
+      G.pendingClaim = {queue: pendingClaimQueue, pi: G.currentPlayer, afterPhase: pendingArrows.length ? 'arrow-choice' : 'buy'};
+      G.phase = 'claim';
+      renderGame(); return;
+    } else {
+      pendingClaimQueue.forEach(function(lvl) { autoClaimCard(G.currentPlayer, lvl); });
+    }
+  }
+
+  if (isAiTurn) {
+    const p0 = G.players[0];
+    const splitHas = [d1, d2].some(s => s >= 1 && s <= 12 && p0.sectors[s].deployed.length > 0);
+    const totalHas = effTotal >= 1 && effTotal <= 12 && p0.sectors[effTotal].deployed.length > 0;
+    if (splitHas || totalHas) {
+      G.passiveChoiceDice = [d1, d2, effTotal];
+      G.phase = 'passive-choice';
+    } else {
+      G.passiveChoiceDice = null;
+      G.phase = pendingArrows.length ? 'arrow-choice' : 'buy';
+    }
+  } else {
+    G.phase = pendingArrows.length ? 'arrow-choice' : 'buy';
+  }
+  renderGame();
+}
+
+function choosePassiveMode(mode) {
+  const [pcd1, pcd2, pcTotal] = G.passiveChoiceDice;
+  const p0sec = G.players[0].sectors;
+  const sectors = mode === 'split'
+    ? [pcd1, pcd2].filter(s => s >= 1 && s <= 12 && p0sec[s].deployed.length > 0)
+    : [pcTotal];
+  const p0 = G.players[0];
+  let p0Gains = [];
+  sectors.forEach(function(s) {
+    if (s < 1 || s > 12) return;
+    p0.sectors[s].deployed.forEach(function(d) {
+      const depR = d.deployed;
+      applyReward(p0, depR);
+      if (depR && depR.chargeMax) {
+        d.chargeCount = Math.min(depR.chargeMax, (d.chargeCount || 0) + 1);
+      }
+      if (depR && depR.arrow) {
+        const vt = getValidArrowTargets(0, s, depR.arrow, 'deployed');
+        if (vt.length > 0) G.pendingArrows.push({pi: 0, sector: s, arrow: depR.arrow, side: 'deployed'});
+      }
+      const summary = rewardSummary(depR);
+      if (summary) p0Gains.push('S' + s + ': ' + summary);
+    });
+  });
+  if (p0Gains.length) addLog(p0.name + ' (passive) — ' + p0Gains.join(', '));
+  G.passiveChoiceDice = null;
+  G.phase = G.pendingArrows.length ? 'arrow-choice' : 'buy';
   renderGame();
 }
 
@@ -830,10 +992,12 @@ function buyCard(cardId) {
     const f = G.shipyard[`l${l}`].find(c => c.id===cardId);
     if (f) { card=f; lvl=l; break; }
   }
-  if (!card || cp.credits < card.cost) return;
+  const onExtraBuyRound = (G.extraBuys || 0) === 0 && G.extraBuyFilter;
+  if (onExtraBuyRound && (card.sector < G.extraBuyFilter.min || card.sector > G.extraBuyFilter.max)) return;
+  if (!card || cp.credits < card.cost || cp.sectors[card.sector].colonyLocked) return;
 
   cp.sectors[card.sector].deployed.push({...cp.sectors[card.sector].stationed});
-  cp.sectors[card.sector].stationed = {...card};
+  cp.sectors[card.sector].stationed = {...card, chargeCount: 0};
   cp.credits = 0;
 
   const idx = G.shipyard[`l${lvl}`].findIndex(c => c.id===cardId);
@@ -842,11 +1006,60 @@ function buyCard(cardId) {
   if (refill) G.shipyard[`l${lvl}`].push(refill);
 
   addLog(`${cp.name} bought ${card.name} (S${card.sector}) for ${card.cost}C`);
-  endTurn();
+  if (G.extraBuys > 0) {
+    G.extraBuys--;
+    if (G.extraBuys === 0) G.extraBuyFilter = null;
+    renderGame();
+  } else {
+    G.extraBuyFilter = null;
+    if (G.currentPlayer === 0) { G.phase = 'pass'; renderGame(); } else { endTurn(); }
+  }
 }
 
 function skipBuy() {
-  addLog(`${G.players[G.currentPlayer].name} skipped buying`);
+  if ((G.extraBuys || 0) > 0) {
+    addLog(`${G.players[G.currentPlayer].name} skipped extra buy`);
+    G.extraBuys = 0;
+    G.extraBuyFilter = null;
+  } else if (G.extraBuyFilter) {
+    addLog(`${G.players[G.currentPlayer].name} skipped restricted buy`);
+    G.extraBuyFilter = null;
+  } else {
+    addLog(`${G.players[G.currentPlayer].name} skipped buying`);
+  }
+  if (G.currentPlayer === 0) { G.phase = 'pass'; renderGame(); } else { endTurn(); }
+}
+
+function claimCard(cardId) {
+  const state = G.pendingClaim;
+  if (!state || !state.queue.length) return;
+  const lvl = state.queue[0];
+  const cards = G.shipyard['l' + lvl];
+  const idx = cards.findIndex(c => c.id === cardId);
+  if (idx === -1) return;
+  const card = cards[idx];
+  const player = G.players[state.pi];
+  player.sectors[card.sector].deployed.push({...player.sectors[card.sector].stationed});
+  player.sectors[card.sector].stationed = {...card, chargeCount: 0};
+  cards.splice(idx, 1);
+  const refill = G.shipyard['l' + lvl + 'deck'].shift();
+  if (refill) cards.push(refill);
+  addLog(player.name + ' claimed ' + card.name + ' (L' + lvl + ', S' + card.sector + ') for free');
+  state.queue.shift();
+  if (!state.queue.length) { G.phase = state.afterPhase; G.pendingClaim = null; }
+  renderGame();
+}
+
+function skipClaim() {
+  const state = G.pendingClaim;
+  if (!state) return;
+  const lvl = state.queue.shift();
+  addLog(G.players[state.pi].name + ' skipped L' + lvl + ' claim');
+  if (!state.queue.length) { G.phase = state.afterPhase; G.pendingClaim = null; }
+  renderGame();
+}
+
+function passToNextPlayer() {
   endTurn();
 }
 
@@ -870,7 +1083,14 @@ function endTurn() {
   G.phase = 'roll';
   G.dice = [0,0];
   G.chosenDiceMode = null;
-  G.viewingPlayer = G.currentPlayer;
+  G.pendingArrows = [];
+  G.pendingAbility = null;
+  G.pendingClaim = null;
+  G.extraBuys = 0;
+  G.extraBuyFilter = null;
+  G.rollBonus = 0;
+  G.rollTotal = null;
+  if (G.currentPlayer === 0) G.viewingPlayer = 0;
   renderGame();
 }
 
@@ -888,13 +1108,26 @@ function buyColony(sector) {
   const cp = G.players[G.currentPlayer];
   const colony = COLONY_CARDS.find(c => c.sector === sector);
   if (!colony || G.phase !== 'buy' || cp.credits < colony.cost || G.colonyPurchased[sector]) return;
-  cp.credits -= colony.cost;
-  cp.vp += colony.vp;
-  G.colonyPurchased[sector] = cp.name;
-  // Lock that sector — mark stationed as colony-locked
+  const colonyCard = {
+    id: 'colony_s' + sector,
+    name: 'Colony · S' + sector,
+    type: 'Colony Card',
+    sector: sector,
+    level: 3,
+    isColony: true,
+    colonyVp: colony.vp,
+    cost: colony.cost,
+    station: null,
+    deployed: null
+  };
+  cp.sectors[sector].deployed.push({...cp.sectors[sector].stationed});
+  cp.sectors[sector].stationed = colonyCard;
   cp.sectors[sector].colonyLocked = true;
+  cp.vp += colony.vp;
+  cp.credits = 0;
+  G.colonyPurchased[sector] = cp.name;
   addLog(`${cp.name} bought Colony Card S${sector} for ${colony.cost}C — gained ${colony.vp} VP!`);
-  endTurn();
+  if (G.currentPlayer === 0) { G.phase = 'pass'; renderGame(); } else { endTurn(); }
 }
 
 function rewardSummary(r) {
@@ -907,18 +1140,444 @@ function rewardSummary(r) {
   if (r.arrow === 'left')  p.push('←');
   if (r.arrow === 'right') p.push('→');
   if (r.special) p.push(r.special);
+  if (r.chargeMax)  p.push('+1 charge');
+  else if (r.charge) p.push('+' + r.charge + ' charge token' + (r.charge > 1 ? 's' : ''));
   return p.join(', ');
 }
 
+function setCharge(pi, sector, isDeployed, deployedIdx, newCount) {
+  const sec = G.players[pi].sectors[sector];
+  const card = isDeployed ? sec.deployed[deployedIdx] : sec.stationed;
+  const max = isDeployed ? (card.deployed && card.deployed.chargeMax || 0) : (card.station && card.station.chargeMax || 0);
+  card.chargeCount = Math.max(0, Math.min(max, newCount));
+  renderGame();
+}
+
+function parseClaimQueue(special) {
+  const queue = [];
+  const comboM = special.match(/Claim L(\d+)\s*\+\s*L(\d+)/i);
+  if (comboM) { queue.push(parseInt(comboM[1]), parseInt(comboM[2])); return queue; }
+  const multiM = special.match(/Claim\s+(\d+)[×x]?\s*L(\d+)/i);
+  if (multiM) { const c = parseInt(multiM[1]), l = parseInt(multiM[2]); for (let i=0;i<c;i++) queue.push(l); return queue; }
+  const singleM = special.match(/Claim\s+L(\d+)/i);
+  if (singleM) { queue.push(parseInt(singleM[1])); return queue; }
+  return queue;
+}
+
+function autoClaimCard(pi, lvl) {
+  const cards = G.shipyard['l' + lvl];
+  if (!cards.length) { addLog(G.players[pi].name + ' tried to claim L' + lvl + ' but shipyard is empty'); return; }
+  const card = cards[0];
+  const player = G.players[pi];
+  player.sectors[card.sector].deployed.push({...player.sectors[card.sector].stationed});
+  player.sectors[card.sector].stationed = {...card, chargeCount: 0};
+  cards.splice(0, 1);
+  const refill = G.shipyard['l' + lvl + 'deck'].shift();
+  if (refill) cards.push(refill);
+  addLog(player.name + ' claimed ' + card.name + ' (L' + lvl + ', S' + card.sector + ') for free');
+}
+
+function getAbilityType(special) {
+  if (!special) return null;
+  if (/\+\d+ next roll/i.test(special)) return 'next-roll-bonus';
+  if (/Swap S\d+\+S\d+/i.test(special)) return 'swap';
+  if (/Reroll dice/i.test(special)) return 'reroll';
+  if (/Add 1 or 2 to die/i.test(special)) return 'add-die-2';
+  if (/Add 1 to die/i.test(special)) return 'add-die-1';
+  if (/Set 1 die/i.test(special)) return 'set-die';
+  if (/Double active/i.test(special)) return 'double-active';
+  if (/Double passive/i.test(special)) return 'double-passive';
+  if (/Opp.*VP/i.test(special)) return 'opp-vp';
+  if (/YOU WIN/i.test(special)) return 'win';
+  if (/Roll=charge/i.test(special)) return 'roll-charge';
+  if (/20C when charged/i.test(special)) return 'credits-charged';
+  if (/^Buy\s+(?:a\s+)?card/i.test(special)) return 'buy-card';
+  if (/Claim/i.test(special)) return 'claim';
+  if (/Exchange card/i.test(special)) return 'exchange';
+  return 'generic';
+}
+
+function isGreenAbility(special) {
+  const t = getAbilityType(special);
+  return t === 'next-roll-bonus' || t === 'add-die-1' || t === 'add-die-2' || t === 'exchange';
+}
+
+function isRollBoostAbility(special) {
+  const t = getAbilityType(special);
+  return t === 'next-roll-bonus' || t === 'add-die-1' || t === 'add-die-2';
+}
+
+function humanHasChargedGreenAbility() {
+  const human = G.players[0];
+  for (let s = 1; s <= 12; s++) {
+    const sec = human.sectors[s];
+    if (sec.stationed.station && sec.stationed.station.chargeMax && isRollBoostAbility(sec.stationed.station.special || '') &&
+        (sec.stationed.chargeCount || 0) >= sec.stationed.station.chargeMax) return true;
+    for (let i = 0; i < sec.deployed.length; i++) {
+      const d = sec.deployed[i];
+      if (d.deployed && d.deployed.chargeMax && isRollBoostAbility(d.deployed.special || '') &&
+          (d.chargeCount || 0) >= d.deployed.chargeMax) return true;
+    }
+  }
+  return false;
+}
+
+function abilityBoostHasReward(special, currentTotal) {
+  const human = G.players[0];
+  const type = getAbilityType(special);
+  const maxDelta = (type === 'add-die-2') ? 2 : 1;
+  const isOwnTurn = G.currentPlayer === 0;
+  for (let d = 1; d <= maxDelta; d++) {
+    const target = currentTotal + d;
+    if (target < 1 || target > 12) continue;
+    if (isOwnTurn) return true;
+    if (human.sectors[target].deployed.length > 0) return true;
+  }
+  return false;
+}
+
+function shouldOfferGreenBonus() {
+  if (!humanHasChargedGreenAbility()) return false;
+  const human = G.players[0];
+  const base = G.dice[0] + G.dice[1] + (G.rollBonus || 0);
+  for (let s = 1; s <= 12; s++) {
+    const sec = human.sectors[s];
+    if (sec.stationed.station && sec.stationed.station.chargeMax && isRollBoostAbility(sec.stationed.station.special || '') &&
+        (sec.stationed.chargeCount || 0) >= sec.stationed.station.chargeMax &&
+        abilityBoostHasReward(sec.stationed.station.special, base)) return true;
+    for (let i = 0; i < sec.deployed.length; i++) {
+      const d = sec.deployed[i];
+      if (d.deployed && d.deployed.chargeMax && isRollBoostAbility(d.deployed.special || '') &&
+          (d.chargeCount || 0) >= d.deployed.chargeMax &&
+          abilityBoostHasReward(d.deployed.special, base)) return true;
+    }
+  }
+  return false;
+}
+
+function getValidArrowTargets(pi, sector, arrow, side) {
+  const player = G.players[pi];
+  const candidates = [];
+  if ((arrow === 'left'  || arrow === 'both') && sector > 1)  candidates.push(sector - 1);
+  if ((arrow === 'right' || arrow === 'both') && sector < 12) candidates.push(sector + 1);
+  if (side === 'deployed') {
+    return candidates.filter(function(s) { return player.sectors[s].deployed.length > 0; });
+  }
+  return candidates;
+}
+
+function swapSectors(pi, s1, s2) {
+  const p = G.players[pi];
+  const tmp = {stationed: p.sectors[s1].stationed, deployed: p.sectors[s1].deployed, colonyLocked: p.sectors[s1].colonyLocked};
+  p.sectors[s1] = {stationed: p.sectors[s2].stationed, deployed: p.sectors[s2].deployed, colonyLocked: p.sectors[s2].colonyLocked};
+  p.sectors[s2] = tmp;
+  addLog(p.name + ' swapped S' + s1 + ' ↔ S' + s2);
+}
+
+function activateAbility(pi, sector, isDeployed, deployedIdx) {
+  const sec = G.players[pi].sectors[sector];
+  const card = isDeployed ? sec.deployed[deployedIdx] : sec.stationed;
+  const reward = isDeployed ? card.deployed : card.station;
+  if (!reward || !reward.chargeMax || (card.chargeCount || 0) < reward.chargeMax) return;
+  const special = reward.special || '';
+  const type = getAbilityType(special);
+  const prevCount = card.chargeCount || 0;
+  card.chargeCount = 0;
+  if (type === 'next-roll-bonus') {
+    if (G.phase === 'post-roll-bonus') {
+      G.rollBonus = (G.rollBonus || 0) + 1;
+      addLog(G.players[pi].name + ' green ability: +1 to roll → total now ' + (G.dice[0] + G.dice[1] + G.rollBonus));
+      G.phase = shouldOfferGreenBonus() ? 'post-roll-bonus' : 'choose-dice';
+    } else {
+      G.nextRollBonus = (G.nextRollBonus || 0) + 1;
+      addLog(G.players[pi].name + ' pre-armed: +1 to next roll total');
+    }
+  } else if (type === 'swap') {
+    const m = special.match(/Swap S(\d+)\+S(\d+)/i);
+    if (m) swapSectors(pi, parseInt(m[1]), parseInt(m[2]));
+  } else if (type === 'reroll') {
+    G.dice = [Math.ceil(Math.random()*6), Math.ceil(Math.random()*6)];
+    const cm = special.match(/\+(\d+)C/);
+    if (cm) G.players[pi].credits = Math.min(20, G.players[pi].credits + parseInt(cm[1]));
+    addLog(G.players[pi].name + ' rerolled — ' + G.dice[0] + ' + ' + G.dice[1] + ' = ' + (G.dice[0]+G.dice[1]));
+    G.phase = 'choose-dice';
+  } else if (type === 'add-die-1') {
+    if (G.phase === 'post-roll-bonus') {
+      G.rollBonus = (G.rollBonus || 0) + 1;
+      addLog(G.players[pi].name + ' green ability: +1 to roll → total now ' + (G.dice[0] + G.dice[1] + G.rollBonus));
+      G.phase = shouldOfferGreenBonus() ? 'post-roll-bonus' : 'choose-dice';
+    } else {
+      G.nextRollBonus = (G.nextRollBonus || 0) + 1;
+      addLog(G.players[pi].name + ' pre-armed: +1 to next roll total');
+    }
+  } else if (type === 'add-die-2') {
+    if (G.phase === 'post-roll-bonus') {
+      G.pendingAbility = {type: 'choose-add-postroll', pi};
+    } else {
+      G.pendingAbility = {type: 'choose-add', pi};
+    }
+  } else if (type === 'set-die') {
+    // set-die is handled by activateSetDie() in the pre-roll phase only
+    card.chargeCount = prevCount; // restore charge — wrong context
+    renderGame(); return;
+  } else if (type === 'opp-vp') {
+    const m = special.match(/(\d+)VP/i);
+    const loss = m ? parseInt(m[1]) : 3;
+    G.players.forEach(function(op, i) { if (i !== pi) op.vp = Math.max(0, op.vp - loss); });
+    addLog(G.players[pi].name + ' ability — all opponents -' + loss + ' VP');
+    const buyM = special.match(/buy\s+(\d+)(?:-(\d+))?\s+cards?/i);
+    if (buyM) {
+      const minBuy = parseInt(buyM[1]);
+      const maxBuy = buyM[2] ? parseInt(buyM[2]) : minBuy;
+      if (pi === 0) {
+        if (maxBuy > minBuy) {
+          G.pendingAbility = {type: 'choose-buy-count', pi, minBuy, maxBuy};
+        } else {
+          G.extraBuys = (G.extraBuys || 0) + minBuy;
+          addLog(G.players[pi].name + ' +' + minBuy + ' extra buy(s) this turn');
+        }
+      }
+    }
+  } else if (type === 'win') {
+    addLog(G.players[pi].name + ' used YOU WIN — game over!');
+    endGame(); return;
+  } else if (type === 'roll-charge') {
+    const earned = prevCount * 3;
+    G.players[pi].credits = Math.min(20, G.players[pi].credits + earned);
+    addLog(G.players[pi].name + ' Roll=Charge: ' + prevCount + ' charges → +' + earned + 'C');
+  } else if (type === 'credits-charged') {
+    G.players[pi].credits = Math.min(20, G.players[pi].credits + 20);
+    addLog(G.players[pi].name + ' ability — +20C when charged');
+  } else if (type === 'claim') {
+    const queue = parseClaimQueue(special);
+    if (pi === 0) {
+      G.pendingClaim = {queue, pi, afterPhase: G.phase};
+      G.phase = 'claim';
+    } else {
+      queue.forEach(function(lvl) { autoClaimCard(pi, lvl); });
+    }
+  } else if (type === 'exchange') {
+    if (pi === 0) {
+      G.pendingAbility = {type: 'exchange', pi, sector, isDeployed, deployedIdx};
+    }
+  } else if (type === 'buy-card') {
+    if (G.phase !== 'buy') {
+      card.chargeCount = prevCount;
+      addLog(G.players[pi].name + ': buy-card ability can only be used during the buy phase');
+      renderGame(); return;
+    }
+    const restrictM = special.match(/S(\d+)-(\d+)/i);
+    G.extraBuys = (G.extraBuys || 0) + 1;
+    G.extraBuyFilter = restrictM ? {min: parseInt(restrictM[1]), max: parseInt(restrictM[2])} : null;
+    addLog(G.players[pi].name + ' ability — +1 extra buy this turn' + (G.extraBuyFilter ? ' (S' + G.extraBuyFilter.min + '-' + G.extraBuyFilter.max + ' only)' : '') + '!');
+  } else {
+    addLog(G.players[pi].name + ' used: ' + special);
+  }
+  renderGame();
+}
+
+function confirmBuyCount(n) {
+  const pa = G.pendingAbility;
+  if (!pa || pa.type !== 'choose-buy-count') return;
+  G.extraBuys = (G.extraBuys || 0) + n;
+  G.pendingAbility = null;
+  addLog(G.players[pa.pi].name + ' chose ' + n + ' extra buy' + (n > 1 ? 's' : '') + ' this turn');
+  renderGame();
+}
+
+function confirmAddBonus(delta) {
+  if (G.pendingAbility.type === 'choose-add-postroll') {
+    G.rollBonus = (G.rollBonus || 0) + delta;
+    addLog(G.players[G.pendingAbility.pi].name + ' green ability: +' + delta + ' to roll → total now ' + (G.dice[0] + G.dice[1] + G.rollBonus));
+    G.pendingAbility = null;
+    G.phase = shouldOfferGreenBonus() ? 'post-roll-bonus' : 'choose-dice';
+  } else {
+    G.nextRollBonus = (G.nextRollBonus || 0) + delta;
+    addLog(G.players[G.pendingAbility.pi].name + ' pre-armed: +' + delta + ' to next roll total');
+    G.pendingAbility = null;
+  }
+  renderGame();
+}
+
+function skipGreenBonus() {
+  G.phase = 'choose-dice';
+  renderGame();
+}
+
+function confirmSetTotal(val) {
+  if (G.pendingAbility && G.pendingAbility.bonus) {
+    G.players[G.pendingAbility.pi].credits = Math.min(20, G.players[G.pendingAbility.pi].credits + G.pendingAbility.bonus);
+  }
+  G.nextRollTotal = val;
+  addLog(G.players[G.pendingAbility.pi].name + ' pre-armed: next roll total → ' + val);
+  G.pendingAbility = null;
+  renderGame();
+}
+
+function cancelAbility() {
+  G.pendingAbility = null;
+  renderGame();
+}
+
+function confirmExchange(targetSector, targetIsDeployed, targetDeployedIdx) {
+  const pa = G.pendingAbility;
+  if (!pa || pa.type !== 'exchange') return;
+  const player = G.players[pa.pi];
+  const zSlot = player.sectors[pa.sector];
+  const tSlot = player.sectors[targetSector];
+  const zCard = pa.isDeployed ? zSlot.deployed[pa.deployedIdx] : zSlot.stationed;
+  const tCard = targetIsDeployed ? tSlot.deployed[targetDeployedIdx] : tSlot.stationed;
+  if (pa.isDeployed) zSlot.deployed[pa.deployedIdx] = tCard;
+  else zSlot.stationed = tCard;
+  if (targetIsDeployed) tSlot.deployed[targetDeployedIdx] = zCard;
+  else tSlot.stationed = zCard;
+  addLog(player.name + ' exchanged ' + zCard.name + ' (S' + pa.sector + (pa.isDeployed ? ' passive' : ' active') + ') ↔ ' + tCard.name + ' (S' + targetSector + (targetIsDeployed ? ' passive' : ' active') + ')');
+  G.pendingAbility = null;
+  renderGame();
+}
+
+function activateSetDie(pi, sector, isDeployed, deployedIdx) {
+  if (G.phase !== 'roll' || pi !== 0) return;
+  const sec = G.players[pi].sectors[sector];
+  const card = isDeployed ? sec.deployed[deployedIdx] : sec.stationed;
+  const reward = isDeployed ? card.deployed : card.station;
+  if (!reward || !reward.chargeMax || (card.chargeCount || 0) < 1) return;
+  const chargeCount = card.chargeCount || 0;
+  const diceToSet = Math.min(chargeCount, 2);
+  const m = (reward.special || '').match(/\+(\d+)C\/die/i);
+  const creditPerDie = m ? parseInt(m[1]) : 0;
+  const originalCharge = chargeCount;
+  card.chargeCount = 0;
+  G.setDice = [null, null];
+  G.pendingAbility = {type: 'set-die-pre', pi, sector, isDeployed, deployedIdx, originalCharge, diceLeft: diceToSet, creditPerDie};
+  addLog(G.players[pi].name + ' set-die: will pre-set ' + diceToSet + ' die' + (diceToSet > 1 ? 's' : ''));
+  renderGame();
+}
+
+function confirmSetDie(value) {
+  const pa = G.pendingAbility;
+  if (!pa || pa.type !== 'set-die-pre') return;
+  if (!G.setDice) G.setDice = [null, null];
+  if (G.setDice[0] === null) {
+    G.setDice[0] = value;
+  } else {
+    G.setDice[1] = value;
+  }
+  if (pa.creditPerDie > 0) {
+    G.players[pa.pi].credits = Math.min(20, G.players[pa.pi].credits + pa.creditPerDie);
+  }
+  pa.diceLeft--;
+  if (pa.diceLeft <= 0) G.pendingAbility = null;
+  renderGame();
+}
+
+function cancelSetDie() {
+  const pa = G.pendingAbility;
+  if (!pa || pa.type !== 'set-die-pre') return;
+  const sec = G.players[pa.pi].sectors[pa.sector];
+  const card = pa.isDeployed ? sec.deployed[pa.deployedIdx] : sec.stationed;
+  card.chargeCount = pa.originalCharge;
+  G.setDice = null;
+  G.pendingAbility = null;
+  renderGame();
+}
+
+function resolveArrow(pi, fromSector, toSector) {
+  const player = G.players[pi];
+  const arrow = G.pendingArrows[0];
+  if (arrow.side === 'station') {
+    const r = player.sectors[toSector].stationed.station;
+    applyReward(player, r);
+    addLog(player.name + ' arrow S' + fromSector + '→S' + toSector + ': ' + (rewardSummary(r) || '—'));
+    if (r && r.arrow) {
+      const vt = getValidArrowTargets(pi, toSector, r.arrow, 'station');
+      if (vt.length > 0) G.pendingArrows.splice(1, 0, {pi, sector: toSector, arrow: r.arrow, side: 'station'});
+    }
+  } else {
+    const gains = [];
+    let chainArrow = null;
+    player.sectors[toSector].deployed.forEach(function(d) {
+      applyReward(player, d.deployed);
+      const s = rewardSummary(d.deployed); if (s) gains.push(s);
+      if (d.deployed && d.deployed.arrow && !chainArrow) {
+        const vt = getValidArrowTargets(pi, toSector, d.deployed.arrow, 'deployed');
+        if (vt.length > 0) chainArrow = {pi, sector: toSector, arrow: d.deployed.arrow, side: 'deployed'};
+      }
+    });
+    addLog(player.name + ' arrow S' + fromSector + '→S' + toSector + ': ' + (gains.join(', ') || '—'));
+    if (chainArrow) G.pendingArrows.splice(1, 0, chainArrow);
+  }
+  G.pendingArrows.shift();
+  if (!G.pendingArrows.length) G.phase = 'buy';
+  renderGame();
+}
+
+function skipArrow(pi, sector) {
+  addLog(G.players[pi].name + ' skipped arrow from S' + sector);
+  G.pendingArrows.shift();
+  if (!G.pendingArrows.length) G.phase = 'buy';
+  renderGame();
+}
+
 function addLog(msg) { G.log.unshift(msg); if (G.log.length > 20) G.log.pop(); }
-function resetGame() { show('setup-screen'); initSetup(); }
+function resetGame() { if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; } show('setup-screen'); initSetup(); }
+
+// ─── AI ──────────────────────────────────────────────────────────────────────
+let aiTimer = null;
+
+function scheduleAiAction() {
+  if (!G.players || G.currentPlayer === 0) return;
+  if (G.phase === 'passive-choice') return;
+  if (aiTimer) clearTimeout(aiTimer);
+  if (G.phase === 'roll') {
+    aiTimer = setTimeout(function() { aiTimer = null; rollDice(); }, 900);
+  } else if (G.phase === 'choose-dice') {
+    aiTimer = setTimeout(function() { aiTimer = null; aiChooseDice(); }, 700);
+  } else if (G.phase === 'arrow-choice' && G.pendingArrows.length && G.pendingArrows[0].pi !== 0) {
+    aiTimer = setTimeout(function() { aiTimer = null; aiResolveArrow(); }, 700);
+  } else if (G.phase === 'buy') {
+    aiTimer = setTimeout(function() { aiTimer = null; aiDoBuy(); }, 700);
+  }
+}
+
+function aiChooseDice() {
+  if (G.currentPlayer === 0) return;
+  const [d1, d2] = G.dice;
+  chooseDiceMode(d1 === d2 ? 'split' : 'total');
+}
+
+function aiResolveArrow() {
+  if (!G.pendingArrows.length || G.pendingArrows[0].pi === 0) return;
+  const arr = G.pendingArrows[0];
+  const validTargets = getValidArrowTargets(arr.pi, arr.sector, arr.arrow, arr.side);
+  if (validTargets.length > 0) resolveArrow(arr.pi, arr.sector, validTargets[0]);
+  else skipArrow(arr.pi, arr.sector);
+}
+
+function aiDoBuy() {
+  if (G.currentPlayer === 0) return;
+  const cp = G.players[G.currentPlayer];
+  const aiFilter = (G.extraBuys || 0) === 0 && G.extraBuyFilter;
+  let bestCard = null;
+  for (const l of [3, 2, 1]) {
+    const affordable = G.shipyard['l' + l].filter(function(c) {
+      return cp.credits >= c.cost && (!aiFilter || (c.sector >= aiFilter.min && c.sector <= aiFilter.max));
+    });
+    if (affordable.length) {
+      bestCard = affordable.reduce(function(a, b) { return b.cost > a.cost ? b : a; });
+      break;
+    }
+  }
+  if (bestCard) buyCard(bestCard.id);
+  else skipBuy();
+}
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
 // ─── RENDER ──────────────────────────────────────────────────────────────────
-function renderGame() { renderTabs(); renderBanner(); renderMain(); }
+function renderGame() { renderTabs(); renderBanner(); renderMain(); scheduleAiAction(); }
 
 function shiftViewer(dir) {
   G.viewingPlayer = (G.viewingPlayer + dir + G.players.length) % G.players.length;
@@ -928,18 +1587,26 @@ function shiftViewer(dir) {
 function renderTabs() {
   const vp = G.players[G.viewingPlayer];
   const isActive = G.viewingPlayer === G.currentPlayer;
+  const isHumanTurn = G.currentPlayer === 0;
   const label = document.getElementById('viewer-label');
   if (label) {
-    label.innerHTML = vp.name + (isActive ? ' <span style="font-size:10px;background:var(--blue);color:#fff;border-radius:10px;padding:1px 6px;vertical-align:middle;">Your turn</span>' : '');
+    let badge = '';
+    if (isActive && isHumanTurn) {
+      badge = ' <span style="font-size:10px;background:var(--blue);color:#fff;border-radius:10px;padding:1px 6px;vertical-align:middle;">Your turn</span>';
+    } else if (isActive && !isHumanTurn) {
+      badge = ' <span style="font-size:10px;background:var(--gold);color:#fff;border-radius:10px;padding:1px 6px;vertical-align:middle;">CPU turn</span>';
+    }
+    label.innerHTML = vp.name + badge;
   }
 }
 
 function renderBanner() {
   const p = G.players[G.currentPlayer];
-  const labels = {roll:'Roll dice','choose-dice':'Allocate dice',buy:'Buy a ship'};
+  const isHumanTurn = G.currentPlayer === 0;
+  const labels = {roll:'Roll dice','choose-dice':'Allocate dice','passive-choice':'Passive rewards',buy:'Buy a ship','arrow-choice':'Arrow reward','post-roll-bonus':'Green Ability',pass:'Turn done'};
   const isCurrent = G.viewingPlayer === G.currentPlayer;
   document.getElementById('active-player-banner').innerHTML =
-    `<div><div style="font-size:11px;color:var(--text2);">Active player</div>
+    `<div><div style="font-size:11px;color:var(--text2);">${isHumanTurn ? 'Your turn' : 'CPU opponent'}</div>
      <div style="font-size:15px;font-weight:600;">${p.name}</div></div>
      <span class="badge ${isCurrent?'blue':'gold'}">${labels[G.phase]||G.phase}</span>`;
 }
@@ -953,25 +1620,210 @@ function renderMain() {
 
   let html = '';
 
-  if (isCurrent) {
+  // Arrow-choice phase — show for whoever needs to resolve (any player)
+  if (G.phase === 'arrow-choice' && G.pendingArrows && G.pendingArrows.length) {
+    const arr = G.pendingArrows[0];
+    const arrPlayer = G.players[arr.pi];
+    const as = arr.sector;
+    html += '<div class="card" style="margin-bottom:10px;border:1px solid #3a8fd4;">';
+    html += '<h2 style="color:#3a8fd4;margin:0 0 6px;">← → Arrow Reward</h2>';
+    if (arr.pi === 0) {
+      const validTargets = getValidArrowTargets(0, as, arr.arrow, arr.side);
+      const rewardType = arr.side === 'deployed' ? 'passive rewards' : 'station reward';
+      html += '<p style="font-size:12px;margin-bottom:10px;">S' + as + ' arrow — choose an adjacent sector to collect its ' + rewardType + ' from:</p>';
+      html += '<div class="flex-row">';
+      validTargets.forEach(function(t) {
+        const dir = t < as ? '←' : '→';
+        html += '<button class="btn sm" onclick="resolveArrow(' + arr.pi + ',' + as + ',' + t + ')">' + dir + ' S' + t + '</button>';
+      });
+      html += '<button class="btn sm" onclick="skipArrow(' + arr.pi + ',' + as + ')">Skip</button>';
+      html += '</div>';
+    } else {
+      html += '<p style="font-size:12px;color:var(--text2);">' + arrPlayer.name + ' is resolving arrow from S' + as + '...</p>';
+    }
+    html += '</div>';
+  }
+
+  // Pending pre-arm choice UIs (visible regardless of isCurrent)
+  if (G.pendingAbility && G.pendingAbility.type === 'choose-add') {
+    html += '<div class="card" style="border:1px solid #c9a43a;margin-bottom:10px;">';
+    html += '<h2 style="color:#c9a43a;margin:0 0 6px;">⚡ Pre-arm Die Bonus</h2>';
+    html += '<p style="font-size:12px;margin-bottom:8px;">Choose bonus to add to the <b>next</b> roll\'s total:</p>';
+    html += '<div class="flex-row">';
+    html += '<button class="btn sm primary" onclick="confirmAddBonus(1)">+1 to total</button>';
+    html += '<button class="btn sm primary" onclick="confirmAddBonus(2)">+2 to total</button>';
+    html += '<button class="btn sm" onclick="cancelAbility()">Cancel</button>';
+    html += '</div></div>';
+  }
+  if (G.pendingAbility && G.pendingAbility.type === 'choose-add-postroll') {
+    const prb = G.dice[0] + G.dice[1];
+    html += '<div class="card" style="border:1px solid var(--green);margin-bottom:10px;">';
+    html += '<h2 style="color:var(--green);margin:0 0 6px;">🟢 Boost This Roll</h2>';
+    html += '<p style="font-size:12px;margin-bottom:8px;">Current roll: <b>' + prb + '</b> — choose how much to add:</p>';
+    html += '<div class="flex-row">';
+    html += '<button class="btn sm" style="border-color:var(--green);color:var(--green);" onclick="confirmAddBonus(1)">+1 → total ' + (prb+1) + '</button>';
+    html += '<button class="btn sm" style="border-color:var(--green);color:var(--green);" onclick="confirmAddBonus(2)">+2 → total ' + (prb+2) + '</button>';
+    html += '</div></div>';
+  }
+  if (G.phase === 'post-roll-bonus') {
+    const [prd1, prd2] = G.dice;
+    const prbase = prd1 + prd2;
+    const preff = prbase + (G.rollBonus || 0);
+    html += '<div class="card" style="border:1px solid var(--green);margin-bottom:10px;">';
+    html += '<h2 style="color:var(--green);margin:0 0 6px;">🟢 Green Ability — Boost This Roll?</h2>';
+    html += '<div class="dice-display">';
+    html += '<div class="die">' + prd1 + '</div>';
+    html += '<span style="color:var(--text2);">+</span>';
+    html += '<div class="die">' + prd2 + '</div>';
+    if (G.rollBonus > 0) {
+      html += '<span style="color:var(--text2);font-size:14px;">= ' + prbase + ' <span style="color:var(--green);">(+' + G.rollBonus + ' = ' + preff + ')</span></span>';
+    } else {
+      html += '<span style="color:var(--text2);font-size:14px;">= ' + prbase + '</span>';
+    }
+    html += '</div>';
+    const rollOwner = G.players[G.currentPlayer].name;
+    html += '<p style="font-size:12px;margin-bottom:8px;">' + (G.currentPlayer === 0 ? 'You rolled' : rollOwner + ' rolled') + ' — use your charged green ability to boost this roll\'s total?</p>';
+    html += '<div class="flex-row">';
+    for (let gbs = 1; gbs <= 12; gbs++) {
+      const gbsec = G.players[0].sectors[gbs];
+      const gbst = gbsec.stationed;
+      if (gbst.station && gbst.station.chargeMax && isRollBoostAbility(gbst.station.special || '') && (gbst.chargeCount || 0) >= gbst.station.chargeMax && abilityBoostHasReward(gbst.station.special, preff)) {
+        html += '<button class="btn sm" style="border-color:var(--green);color:var(--green);" onclick="activateAbility(0,' + gbs + ',0,-1)">S' + gbs + ': ' + gbst.station.special + '</button>';
+      }
+      gbsec.deployed.forEach(function(gbd, gbdi) {
+        if (gbd.deployed && gbd.deployed.chargeMax && isRollBoostAbility(gbd.deployed.special || '') && (gbd.chargeCount || 0) >= gbd.deployed.chargeMax && abilityBoostHasReward(gbd.deployed.special, preff)) {
+          html += '<button class="btn sm" style="border-color:var(--green);color:var(--green);" onclick="activateAbility(0,' + gbs + ',1,' + gbdi + ')">S' + gbs + ' dep: ' + gbd.deployed.special + '</button>';
+        }
+      });
+    }
+    html += '<button class="btn sm" onclick="skipGreenBonus()">Skip</button>';
+    html += '</div></div>';
+  }
+  if (G.pendingAbility && G.pendingAbility.type === 'choose-total') {
+    html += '<div class="card" style="border:1px solid #c9a43a;margin-bottom:10px;">';
+    html += '<h2 style="color:#c9a43a;margin:0 0 6px;">⚡ Set Next Roll Total</h2>';
+    html += '<p style="font-size:12px;margin-bottom:8px;">Choose the total for the <b>next</b> roll (2–12):</p>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
+    for (var ctv = 2; ctv <= 12; ctv++) {
+      html += '<button class="btn sm primary" onclick="confirmSetTotal(' + ctv + ')" style="min-width:30px;">' + ctv + '</button>';
+    }
+    html += '</div>';
+    html += '<button class="btn sm" onclick="cancelAbility()">Cancel</button>';
+    html += '</div>';
+  }
+  if (G.pendingAbility && G.pendingAbility.type === 'exchange') {
+    const pa = G.pendingAbility;
+    const exPlayer = G.players[pa.pi];
+    const zCard = pa.isDeployed ? exPlayer.sectors[pa.sector].deployed[pa.deployedIdx] : exPlayer.sectors[pa.sector].stationed;
+    const targets = [];
+    for (let exs = 1; exs <= 12; exs++) {
+      const exsec = exPlayer.sectors[exs];
+      if (exsec.stationed && exsec.stationed.id && !(pa.isDeployed === 0 && pa.sector === exs) && !exsec.colonyLocked) {
+        targets.push({sector: exs, isDeployed: 0, idx: -1, card: exsec.stationed, pos: 'active'});
+      }
+      exsec.deployed.forEach(function(d, di) {
+        if (!(pa.isDeployed === 1 && pa.sector === exs && pa.deployedIdx === di)) {
+          targets.push({sector: exs, isDeployed: 1, idx: di, card: d, pos: 'passive'});
+        }
+      });
+    }
+    html += '<div class="card" style="border:1px solid var(--green);margin-bottom:10px;">';
+    html += '<h2 style="color:var(--green);margin:0 0 6px;">🟢 Exchange Card</h2>';
+    html += '<p style="font-size:12px;margin-bottom:8px;">Pick a card to swap with <b>' + zCard.name + '</b> (S' + pa.sector + ' ' + (pa.isDeployed ? 'passive' : 'active') + '):</p>';
+    targets.forEach(function(t) {
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);">';
+      html += '<div><div style="font-size:11px;font-weight:600;">S' + t.sector + ' ' + t.pos + ' · ' + t.card.name + '</div></div>';
+      html += '<button class="btn sm primary" style="font-size:10px;padding:3px 8px;flex-shrink:0;" onclick="confirmExchange(' + t.sector + ',' + t.isDeployed + ',' + t.idx + ')">Swap</button>';
+      html += '</div>';
+    });
+    html += '<button class="btn sm" onclick="cancelAbility()" style="margin-top:8px;">Cancel</button>';
+    html += '</div>';
+  }
+  if (G.pendingAbility && G.pendingAbility.type === 'choose-buy-count') {
+    const pbc = G.pendingAbility;
+    html += '<div class="card" style="border:1px solid #c9a43a;margin-bottom:10px;">';
+    html += '<h2 style="color:#c9a43a;margin:0 0 6px;">⚡ Extra Buys</h2>';
+    html += '<p style="font-size:12px;margin-bottom:8px;">How many extra cards do you want to buy this turn?</p>';
+    html += '<div class="flex-row">';
+    for (let bn = pbc.minBuy; bn <= pbc.maxBuy; bn++) {
+      html += '<button class="btn sm primary" onclick="confirmBuyCount(' + bn + ')">' + bn + ' extra card' + (bn > 1 ? 's' : '') + '</button>';
+    }
+    html += '</div></div>';
+  }
+
+  if (isCurrent && G.currentPlayer === 0) {
     if (G.phase === 'roll') {
-      html += `<button class="btn primary block" onclick="rollDice()" style="padding:16px;font-size:16px;margin-bottom:10px;">🎲 Roll Dice</button>`;
+      // Set-die chooser (while selecting die values)
+      if (G.pendingAbility && G.pendingAbility.type === 'set-die-pre') {
+        const pa = G.pendingAbility;
+        const dieNum = G.setDice[0] === null ? 1 : 2;
+        html += '<div class="card" style="border:1px solid #f0c040;margin-bottom:10px;">';
+        html += '<h2 style="color:#f0c040;margin:0 0 6px;">⚡ Set Die ' + dieNum + (pa.diceLeft < (G.setDice[0] === null ? pa.diceLeft : pa.diceLeft + 1) ? '' : '') + '</h2>';
+        if (G.setDice[0] !== null) html += '<p style="font-size:12px;margin-bottom:6px;">Die 1 set to <b>' + G.setDice[0] + '</b></p>';
+        html += '<p style="font-size:12px;margin-bottom:8px;">Choose value for die ' + dieNum + ':</p>';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">';
+        for (let dv = 1; dv <= 6; dv++) {
+          html += '<button class="btn sm primary" onclick="confirmSetDie(' + dv + ')" style="min-width:36px;">' + dv + '</button>';
+        }
+        html += '</div>';
+        html += '<button class="btn sm" onclick="cancelSetDie()">Cancel</button>';
+        html += '</div>';
+      } else {
+        // Set-die ability buttons
+        const setDieBtns = [];
+        for (let sds = 1; sds <= 12; sds++) {
+          const sdsec = G.players[0].sectors[sds];
+          const sdst = sdsec.stationed;
+          if (sdst.station && sdst.station.chargeMax && getAbilityType(sdst.station.special || '') === 'set-die' && (sdst.chargeCount || 0) >= 1) {
+            const cc = sdst.chargeCount || 0;
+            setDieBtns.push('<button class="btn sm" style="border-color:#f0c040;color:#f0c040;" onclick="activateSetDie(0,' + sds + ',0,-1)">S' + sds + ': ' + sdst.station.special + ' (' + cc + ' die' + (cc > 1 ? 's' : '') + ')</button>');
+          }
+          sdsec.deployed.forEach(function(sdd, sddi) {
+            if (sdd.deployed && sdd.deployed.chargeMax && getAbilityType(sdd.deployed.special || '') === 'set-die' && (sdd.chargeCount || 0) >= 1) {
+              const cc = sdd.chargeCount || 0;
+              setDieBtns.push('<button class="btn sm" style="border-color:#f0c040;color:#f0c040;" onclick="activateSetDie(0,' + sds + ',1,' + sddi + ')">S' + sds + ' dep: ' + sdd.deployed.special + ' (' + cc + ' die' + (cc > 1 ? 's' : '') + ')</button>');
+            }
+          });
+        }
+        if (setDieBtns.length) {
+          html += '<div class="card" style="border:1px solid #f0c040;margin-bottom:10px;">';
+          html += '<h2 style="color:#f0c040;margin:0 0 8px;">⚡ Set a Die Before Rolling</h2>';
+          html += '<div class="flex-row">' + setDieBtns.join('') + '</div>';
+          html += '</div>';
+        }
+        // Pre-set dice status
+        if (G.setDice && (G.setDice[0] !== null || G.setDice[1] !== null)) {
+          const d1s = G.setDice[0] !== null ? G.setDice[0] : '?';
+          const d2s = G.setDice[1] !== null ? G.setDice[1] : '?';
+          html += '<div style="background:rgba(240,192,64,0.12);border:1px solid rgba(240,192,64,0.5);border-radius:8px;padding:8px;margin-bottom:8px;font-size:11px;color:#f0c040;text-align:center;">⚡ Pre-set dice: ' + d1s + ' + ' + d2s + '</div>';
+        }
+        if ((G.nextRollBonus || 0) > 0 || (G.nextRollTotal !== null && G.nextRollTotal !== undefined)) {
+          const bonusNote = G.nextRollTotal !== null ? 'Roll total forced → ' + G.nextRollTotal : '+' + G.nextRollBonus + ' to roll total';
+          html += '<div style="background:rgba(240,192,64,0.12);border:1px solid rgba(240,192,64,0.5);border-radius:8px;padding:8px;margin-bottom:8px;font-size:11px;color:#f0c040;text-align:center;">⚡ Next roll bonus active: ' + bonusNote + '</div>';
+        }
+        html += `<button class="btn primary block" onclick="rollDice()" style="padding:16px;font-size:16px;margin-bottom:10px;">🎲 Roll Dice</button>`;
+      }
     }
 
     if (G.phase === 'choose-dice') {
-      html += `<div class="card">
-        <div class="dice-display">
-          <div class="die">${d1}</div>
-          <span style="color:var(--text2);">+</span>
-          <div class="die">${d2}</div>
-          <span style="color:var(--text2);font-size:14px;">= ${total}</span>
-        </div>
-        <p style="margin-bottom:10px;">Activate two sectors individually, or one sector equal to the total.</p>
-        <div class="flex-row">
-          <button class="btn primary sm" onclick="chooseDiceMode('split')">Sectors ${d1} &amp; ${d2}</button>
-          <button class="btn sm" onclick="chooseDiceMode('total')">Sector ${total}</button>
-        </div>
-      </div>`;
+      const effTotal = (G.rollTotal !== null && G.rollTotal !== undefined) ? G.rollTotal : (d1 + d2 + (G.rollBonus || 0));
+      html += '<div class="card">';
+      html += '<div class="dice-display">';
+      html += '<div class="die">' + d1 + '</div>';
+      html += '<span style="color:var(--text2);">+</span>';
+      html += '<div class="die">' + d2 + '</div>';
+      if (effTotal !== d1+d2) {
+        html += '<span style="color:var(--text2);font-size:14px;">= ' + (d1+d2) + ' <span style="color:#f0c040;">(+' + (G.rollBonus||0) + ' = ' + effTotal + ')</span></span>';
+      } else {
+        html += '<span style="color:var(--text2);font-size:14px;">= ' + effTotal + '</span>';
+      }
+      html += '</div>';
+      html += '<p style="margin-bottom:10px;">Activate two sectors individually, or one sector equal to the total.</p>';
+      html += '<div class="flex-row">';
+      html += '<button class="btn primary sm" onclick="chooseDiceMode(\'split\')">Sectors ' + d1 + ' &amp; ' + d2 + '</button>';
+      html += '<button class="btn sm" onclick="chooseDiceMode(\'total\')">Sector ' + effTotal + '</button>';
+      html += '</div>';
+      html += '</div>';
     }
 
     if (G.phase === 'buy') {
@@ -985,18 +1837,156 @@ function renderMain() {
           <h2 style="margin:0;">Shipyard</h2>
           <span style="font-size:12px;color:var(--text2);">You have <b style="color:var(--gold);">${cp.credits}C</b></span>
         </div>`;
+      if ((G.extraBuys || 0) > 0) {
+        html += '<div style="background:rgba(240,192,64,0.12);border:1px solid rgba(240,192,64,0.4);border-radius:6px;padding:5px 8px;margin-bottom:6px;font-size:11px;color:#f0c040;text-align:center;">⚡ ' + G.extraBuys + ' extra buy' + (G.extraBuys > 1 ? 's' : '') + ' remaining after this purchase</div>';
+      } else if (G.extraBuyFilter) {
+        html += '<div style="background:rgba(240,192,64,0.12);border:1px solid rgba(240,192,64,0.4);border-radius:6px;padding:5px 8px;margin-bottom:6px;font-size:11px;color:#f0c040;text-align:center;">⚡ Extra buy — sectors S' + G.extraBuyFilter.min + '–' + G.extraBuyFilter.max + ' only</div>';
+      }
 
       html += `<button class="btn sm block" onclick="skipBuy()" style="margin-top:6px;">Skip purchase</button></div>`;
     }
+
+    if (G.phase === 'claim' && G.pendingClaim) {
+      const claim = G.pendingClaim;
+      const claimLvl = claim.queue[0];
+      const claimCards = G.shipyard['l' + claimLvl];
+      const artBgs = ['linear-gradient(160deg,#0a1628 0%,#1a2a5c 50%,#0d1f3c 100%)','linear-gradient(160deg,#0d1a0d 0%,#1a3d1a 50%,#0a1a0a 100%)','linear-gradient(160deg,#1a0a28 0%,#3d1a5c 50%,#1a0d3c 100%)'];
+      const nameBarBgs = ['#0a1a3a','#0a1a0a','#1a0a2d'];
+      html += '<div class="card" style="margin-bottom:10px;border:1px solid #c9a43a;">';
+      html += '<h2 style="color:#c9a43a;margin:0 0 6px;">⭐ Claim a Level ' + claimLvl + ' Card (Free!)</h2>';
+      if (claim.queue.length > 1) html += '<p style="font-size:11px;color:var(--text2);margin-bottom:6px;">' + claim.queue.length + ' claims remaining.</p>';
+      if (!claimCards.length) {
+        html += '<p style="font-size:12px;color:var(--text2);margin-bottom:8px;">No Level ' + claimLvl + ' cards available in the shipyard.</p>';
+        html += '<button class="btn sm primary" onclick="skipClaim()">Continue</button>';
+      } else {
+        html += '<p style="font-size:12px;margin-bottom:8px;">Pick any Level ' + claimLvl + ' card — it\'s yours for free:</p>';
+        html += '<div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;">';
+        claimCards.forEach(function(card) {
+          html += '<div style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:2px solid #c9a43a;display:flex;flex-direction:column;">'
+            + '<div style="background:' + artBgs[claimLvl-1] + ';padding:6px 6px 4px;position:relative;flex:1;min-height:60px;display:flex;flex-direction:column;justify-content:flex-end;">'
+            + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
+            + '<div style="position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.cost + '</div>'
+            + '<div style="position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
+            + '<div style="text-align:center;font-size:26px;margin-bottom:2px;">🚀</div>'
+            + '<div style="background:' + nameBarBgs[claimLvl-1] + ';margin:0 -6px -4px;padding:3px 5px;text-align:center;">'
+            + '<div style="font-size:8px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
+            + '<div style="font-size:7px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'') + '</div>'
+            + '</div></div>'
+            + '<div style="background:' + (card.station && isGreenAbility(card.station.special||'') ? '#1a3a1a' : '#1a3a5c') + ';padding:5px 6px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;height:50px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+            + rewardIcons(card.station, shopActiveIconSize(card.station))
+            + '</div>'
+            + '<div style="background:' + (card.deployed && isGreenAbility(card.deployed.special||'') ? '#1a3a1a' : '#5c1a1a') + ';padding:3px 5px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;height:28px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+            + '<div style="transform:rotate(180deg);display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;width:100%;">'
+            + rewardIcons(card.deployed, shopPassiveIconSize(card.deployed))
+            + '</div></div>'
+            + '<div style="background:#0a0e1a;padding:4px 6px;">'
+            + '<button class="btn sm primary" onclick="claimCard(\'' + card.id + '\')" style="width:100%;padding:4px;font-size:11px;border-radius:4px;">Claim Free</button>'
+            + '</div></div>';
+        });
+        html += '</div>';
+        html += '<button class="btn sm" onclick="skipClaim()" style="margin-top:6px;">Skip this claim</button>';
+      }
+      html += '</div>';
+    }
+
+    if (G.phase === 'pass') {
+      html += `<div class="card" style="margin-bottom:10px;text-align:center;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Your turn is complete.</div>
+        <button class="btn primary block" onclick="passToNextPlayer()" style="padding:14px;font-size:16px;">Pass to Next Player →</button>
+      </div>`;
+    }
   } else {
-    html += `<p style="margin-bottom:8px;">Viewing ${vp.name}'s board · ${cp.name}'s turn</p>`;
+    if (G.phase !== 'passive-choice') {
+      html += `<p style="margin-bottom:8px;">Viewing ${vp.name}'s board · ${cp.name}'s turn</p>`;
+    }
+  }
+
+  // Passive reward choice UI — shown when an AI player has rolled and player 0 must pick sectors
+  if (G.phase === 'passive-choice' && G.passiveChoiceDice) {
+    const [pcd1, pcd2, pcTotal] = G.passiveChoiceDice;
+    const p0sec = G.players[0].sectors;
+    const splitUniq = [pcd1, pcd2].filter(s => s >= 1 && s <= 12 && p0sec[s].deployed.length > 0);
+    const totalHas = pcTotal >= 1 && pcTotal <= 12 && p0sec[pcTotal].deployed.length > 0;
+    const splitLabel = splitUniq.map(s => 'S' + s).join(' &amp; ');
+    html += '<div class="card" style="margin-bottom:10px;border:1px solid #c9a43a;">';
+    html += '<h2 style="color:#c9a43a;margin:0 0 8px;">Your Passive Rewards</h2>';
+    html += '<div class="dice-display" style="margin:0 0 10px;">';
+    html += '<div class="die">' + pcd1 + '</div>';
+    html += '<span style="color:var(--text2);">+</span>';
+    html += '<div class="die">' + pcd2 + '</div>';
+    html += '<span style="color:var(--text2);font-size:14px;">= ' + pcTotal + '</span>';
+    html += '</div>';
+    html += '<p style="font-size:12px;margin-bottom:10px;">Choose which sectors to collect your passive rewards from:</p>';
+    html += '<div class="flex-row">';
+    if (splitUniq.length > 0) html += '<button class="btn primary sm" onclick="choosePassiveMode(\'split\')">' + splitLabel + '</button>';
+    if (totalHas) html += '<button class="btn ' + (splitUniq.length > 0 ? '' : 'primary ') + 'sm" onclick="choosePassiveMode(\'total\')">S' + pcTotal + '</button>';
+    html += '</div></div>';
+  }
+
+  // Ready abilities panel for the viewing player
+  const readyAbilities = [];
+  for (var ras = 1; ras <= 12; ras++) {
+    const rasec = vp.sectors[ras];
+    if (rasec.stationed.station && rasec.stationed.station.chargeMax && rasec.stationed.station.special &&
+        (rasec.stationed.chargeCount || 0) >= rasec.stationed.station.chargeMax) {
+      readyAbilities.push({sector: ras, isDeployed: 0, deployedIdx: -1, special: rasec.stationed.station.special, name: rasec.stationed.name});
+    }
+    rasec.deployed.forEach(function(rad, radi) {
+      if (rad.deployed && rad.deployed.chargeMax && rad.deployed.special && (rad.chargeCount || 0) >= rad.deployed.chargeMax) {
+        readyAbilities.push({sector: ras, isDeployed: 1, deployedIdx: radi, special: rad.deployed.special, name: rad.name});
+      }
+    });
+  }
+  const greenReadyAbilities = readyAbilities.filter(function(ra) { return isGreenAbility(ra.special); });
+  const goldReadyAbilities = readyAbilities.filter(function(ra) { return !isGreenAbility(ra.special) && getAbilityType(ra.special) !== 'set-die'; });
+  if (greenReadyAbilities.length) {
+    html += '<div class="card" style="margin-bottom:8px;border:1px solid var(--green);">';
+    html += '<h2 style="color:var(--green);margin:0 0 8px;">🟢 Green Abilities — Any Turn</h2>';
+    greenReadyAbilities.forEach(function(ra) {
+      const isExchange = getAbilityType(ra.special) === 'exchange';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);">';
+      html += '<div><div style="font-size:11px;font-weight:600;">S' + ra.sector + ' · ' + ra.name + '</div><div style="font-size:10px;color:var(--green);font-style:italic;">' + ra.special + '</div></div>';
+      if (isExchange) {
+        if (G.viewingPlayer === 0) html += '<button class="btn sm primary" style="font-size:10px;padding:3px 8px;flex-shrink:0;border-color:var(--green);background:rgba(60,140,60,0.2);" onclick="activateAbility(' + G.viewingPlayer + ',' + ra.sector + ',' + ra.isDeployed + ',' + ra.deployedIdx + ')">Use</button>';
+        else html += '<span style="font-size:10px;color:var(--text2);padding:3px 8px;">AI</span>';
+      } else {
+        html += '<span style="font-size:10px;color:var(--green);padding:3px 8px;flex-shrink:0;">After roll ↑</span>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+  if (goldReadyAbilities.length) {
+    html += '<div class="card" style="margin-bottom:8px;border:1px solid #f0c040;">';
+    html += '<h2 style="color:#f0c040;margin:0 0 8px;">⚡ Ready Abilities</h2>';
+    goldReadyAbilities.forEach(function(ra) {
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);">';
+      html += '<div><div style="font-size:11px;font-weight:600;">S' + ra.sector + ' · ' + ra.name + '</div><div style="font-size:10px;color:#c9a43a;font-style:italic;">' + ra.special + '</div></div>';
+      if (G.viewingPlayer === 0) html += '<button class="btn sm primary" style="font-size:10px;padding:3px 8px;flex-shrink:0;" onclick="activateAbility(' + G.viewingPlayer + ',' + ra.sector + ',' + ra.isDeployed + ',' + ra.deployedIdx + ')">Use</button>';
+      else html += '<span style="font-size:10px;color:var(--text2);padding:3px 8px;">AI</span>';
+      html += '</div>';
+    });
+    html += '</div>';
   }
 
   // Sector grid
-  const highlighted = [];
-  if (G.phase==='buy' && G.chosenDiceMode) {
-    if (G.chosenDiceMode==='split') { highlighted.push(d1); if(d1!==d2) highlighted.push(d2); }
-    else highlighted.push(total);
+  const sectorHL = {};
+  if (G.phase === 'choose-dice') {
+    const effTotal = (G.rollTotal !== null && G.rollTotal !== undefined) ? G.rollTotal : (d1 + d2 + (G.rollBonus || 0));
+    if (d1 >= 1 && d1 <= 12) sectorHL[d1] = 'yellow';
+    if (d2 >= 1 && d2 <= 12) sectorHL[d2] = 'yellow';
+    if (effTotal >= 1 && effTotal <= 12) sectorHL[effTotal] = 'green';
+  }
+  if (G.phase === 'passive-choice' && G.passiveChoiceDice && G.viewingPlayer === 0) {
+    const [pcd1, pcd2, pcTotal] = G.passiveChoiceDice;
+    const p0s = G.players[0].sectors;
+    if (pcd1 >= 1 && pcd1 <= 12 && p0s[pcd1].deployed.length > 0) sectorHL[pcd1] = 'yellow';
+    if (pcd2 >= 1 && pcd2 <= 12 && p0s[pcd2].deployed.length > 0) sectorHL[pcd2] = 'yellow';
+    if (pcTotal >= 1 && pcTotal <= 12 && p0s[pcTotal].deployed.length > 0) sectorHL[pcTotal] = 'green';
+  }
+  if (G.phase === 'buy' && G.chosenDiceMode) {
+    const blueS = G.chosenDiceMode === 'split' ? [d1, d2] : [total];
+    blueS.forEach(function(sv) { if (sv >= 1 && sv <= 12) sectorHL[sv] = 'blue'; });
   }
 
   // Centered shipyard with colony toggle
@@ -1013,7 +2003,7 @@ function renderMain() {
 
   if (shopView === 'colony') {
     // Colony cards view
-    html += '<div style="font-size:10px;color:var(--text2);text-align:center;margin-bottom:8px;">Purchase to lock a sector and gain VP immediately. Locked sectors cannot be upgraded.</div>';
+    html += '<div style="font-size:10px;color:var(--text2);text-align:center;margin-bottom:8px;">Places on your board (pushes active card to passive) and awards VP immediately. Locked sectors cannot be upgraded.</div>';
     html += '<div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;justify-content:center;">';
     COLONY_CARDS.forEach(function(colony) {
       const purchased = G.colonyPurchased && G.colonyPurchased[colony.sector];
@@ -1023,7 +2013,7 @@ function renderMain() {
       const colonyBuyBtn = showBtn ? '<button class="btn sm ' + (canBuy?'primary':'') + '" ' + (canBuy?'':'disabled') + ' onclick="buyColony(' + colony.sector + ')" style="width:100%;padding:4px;font-size:11px;border-radius:4px;">Buy</button>' : '';
       html += '<div style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;opacity:' + (purchased?'0.55':'1') + ';">'
         // Artwork area
-        + '<div style="background:linear-gradient(160deg,#1a0a28 0%,#2d1040 50%,#0d0818 100%);padding:6px 6px 4px;position:relative;min-height:72px;display:flex;flex-direction:column;justify-content:flex-end;">'
+        + '<div style="background:linear-gradient(160deg,#1a0a28 0%,#2d1040 50%,#0d0818 100%);padding:6px 6px 4px;position:relative;flex:1;min-height:60px;display:flex;flex-direction:column;justify-content:flex-end;">'
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
         // Cost top-left
         + '<div style="position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + colony.cost + '</div>'
@@ -1035,9 +2025,9 @@ function renderMain() {
         + '<div style="font-size:7px;color:#8877bb;">S' + colony.sector + ' · Locks sector</div>'
         + '</div>'
         + '</div>'
-        // VP reward — purple
-        + '<div style="background:#2d1a4a;padding:5px 6px;display:flex;align-items:center;justify-content:center;gap:4px;min-height:28px;border-top:1px solid rgba(255,255,255,0.08);">'
-        + rewardIcons({vp:colony.vp}, 12)
+        // VP reward — purple (same height as station reward)
+        + '<div style="background:#2d1a4a;padding:5px 6px;display:flex;align-items:center;justify-content:center;gap:3px;min-height:50px;border-top:1px solid rgba(255,255,255,0.08);">'
+        + rewardIcons({vp:colony.vp}, 13)
         + '</div>'
         // Owned/buy
         + '<div style="background:#0a0e1a;padding:4px 6px;">'
@@ -1055,18 +2045,21 @@ function renderMain() {
     html += '<div style="font-size:10px;font-weight:600;color:var(--text2);margin:8px 0 4px;text-transform:uppercase;letter-spacing:0.6px;text-align:center;">Level ' + lvl + ' · ' + ranges[lvl-1] + '</div>';
     html += '<div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;justify-content:center;">';
     cards.forEach(function(card) {
-      const canBuy = canBuyAny && cp.credits >= card.cost;
+      const sectorLocked = cp.sectors[card.sector] && cp.sectors[card.sector].colonyLocked;
+      const filterActive = (G.extraBuys || 0) === 0 && G.extraBuyFilter;
+      const filterBlocked = filterActive && (card.sector < G.extraBuyFilter.min || card.sector > G.extraBuyFilter.max);
+      const canBuy = canBuyAny && cp.credits >= card.cost && !sectorLocked && !filterBlocked;
       const showBtn = canBuyAny;
-      const buyBtn = showBtn ? '<button class="btn sm ' + (canBuy ? 'primary' : '') + '" ' + (canBuy ? '' : 'disabled') + ' onclick="buyCard(\'' + card.id + '\')" style="padding:3px 8px;font-size:11px;">Buy</button>' : '';
+      const buyBtn = showBtn ? (sectorLocked ? '<span style="font-size:10px;color:#8877bb;padding:2px 4px;">Colony locked</span>' : '<button class="btn sm ' + (canBuy ? 'primary' : '') + '" ' + (canBuy ? '' : 'disabled') + ' onclick="buyCard(\'' + card.id + '\')" style="padding:3px 8px;font-size:11px;">Buy</button>') : '';
       const artBg = ['linear-gradient(160deg,#0a1628 0%,#1a2a5c 50%,#0d1f3c 100%)',
                      'linear-gradient(160deg,#0d1a0d 0%,#1a3d1a 50%,#0a1a0a 100%)',
                      'linear-gradient(160deg,#1a0a28 0%,#3d1a5c 50%,#1a0d3c 100%)'][lvl-1];
       const nameBarBg = ['#0a1a3a','#0a1a0a','#1a0a2d'][lvl-1];
-      const shipBuyBtn = showBtn ? '<button class="btn sm ' + (canBuy ? 'primary' : '') + '" ' + (canBuy ? '' : 'disabled') + ' onclick="buyCard(\'' + card.id + '\')" style="width:100%;padding:4px;font-size:11px;margin-top:4px;border-radius:4px;">Buy</button>' : '';
+      const shipBuyBtn = showBtn ? (sectorLocked ? '<div style="font-size:9px;color:#8877bb;text-align:center;padding:3px 0;">Colony locked</div>' : filterBlocked ? '<div style="font-size:9px;color:#888;text-align:center;padding:3px 0;">Out of range</div>' : '<button class="btn sm ' + (canBuy ? 'primary' : '') + '" ' + (canBuy ? '' : 'disabled') + ' onclick="buyCard(\'' + card.id + '\')" style="width:100%;padding:4px;font-size:11px;margin-top:4px;border-radius:4px;">Buy</button>') : '';
       html += '<div style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;">'
 
         // Artwork area
-        + '<div style="background:' + artBg + ';padding:6px 6px 4px;position:relative;min-height:72px;display:flex;flex-direction:column;justify-content:flex-end;">'
+        + '<div style="background:' + artBg + ';padding:6px 6px 4px;position:relative;flex:1;min-height:60px;display:flex;flex-direction:column;justify-content:flex-end;">'
         // Stars decoration
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
         // Cost circle top-left
@@ -1082,15 +2075,16 @@ function renderMain() {
         + '</div>'
         + '</div>'
 
-        // Station reward — blue
-        + '<div style="background:#1a3a5c;padding:5px 6px;display:flex;align-items:center;justify-content:center;gap:4px;min-height:28px;border-top:1px solid rgba(255,255,255,0.08);">'
-        + rewardIcons(card.station, 12)
+        // Station reward — blue or green for green abilities (active, fixed height)
+        + '<div style="background:' + (card.station && isGreenAbility(card.station.special || '') ? '#1a3a1a' : '#1a3a5c') + ';padding:5px 6px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;height:50px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+        + rewardIcons(card.station, shopActiveIconSize(card.station))
         + '</div>'
 
-        // Deployed reward — red
-        + '<div style="background:#5c1a1a;padding:5px 6px;display:flex;align-items:center;justify-content:center;gap:4px;min-height:28px;border-top:1px solid rgba(255,255,255,0.08);">'
-        + rewardIcons(card.deployed, 12)
-        + '</div>'
+        // Deployed reward — upside down, passive (fixed height, scales to fit)
+        + '<div style="background:' + (card.deployed && isGreenAbility(card.deployed.special || '') ? '#1a3a1a' : '#5c1a1a') + ';padding:3px 5px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;height:28px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+        + '<div style="transform:rotate(180deg);display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;width:100%;">'
+        + rewardIcons(card.deployed, shopPassiveIconSize(card.deployed))
+        + '</div></div>'
 
         // Buy button
         + (showBtn ? '<div style="background:#0a0e1a;padding:4px 6px;">' + shipBuyBtn + '</div>' : '')
@@ -1130,7 +2124,8 @@ function renderMain() {
   html += '<div class="sectors-grid" style="justify-content:center;">';
   for (let s=1; s<=12; s++) {
     const sec = vp.sectors[s];
-    const isHL = highlighted.includes(s);
+    const hlType = sectorHL[s] || null;
+    const isHL = hlType === 'blue';
     const stationed = sec.stationed;
     // Art bg: level 0=starting(dark navy), 1=blue, 2=green, 3=purple
     const artBgs = [
@@ -1141,25 +2136,49 @@ function renderMain() {
     ];
     const nameBgs = ['#080e1a','#0a1a3a','#0a1a0a','#1a0a2d'];
     const lvl = stationed.level || 0;
-    const artBg = artBgs[Math.min(lvl,3)];
+    const artBg = stationed.isColony ? 'linear-gradient(160deg,#1a0a28 0%,#2d1040 50%,#0d0818 100%)' : artBgs[Math.min(lvl,3)];
     const nameBg = nameBgs[Math.min(lvl,3)];
-    // Stacked passive rows (deployed cards, bottom to top = first deployed at bottom)
+    const isGreenSta = stationed.station && isGreenAbility(stationed.station.special || '');
+    const isChargedGreenSta = isGreenSta && (stationed.chargeCount || 0) >= (stationed.station.chargeMax || 1);
+    const stationRowBg = stationed.isColony ? '#2d1a4a' : isGreenSta ? (isChargedGreenSta ? 'rgba(74,158,106,0.4)' : '#1a3a1a') : '#1a3a5c';
+    const stationContent = stationed.isColony
+      ? rewardIcons({vp: stationed.colonyVp}, boardActiveIconSize({vp: stationed.colonyVp}))
+      : rewardIcons(stationed.station, boardActiveIconSize(stationed.station), stationed.chargeCount || 0);
+    let wrapperBorderStyle = '';
+    if (hlType === 'yellow') {
+      wrapperBorderStyle = 'border:1.5px solid rgba(240,192,64,0.9);box-shadow:0 0 8px rgba(240,192,64,0.3);';
+    } else if (hlType === 'green') {
+      wrapperBorderStyle = 'border:1.5px solid rgba(80,210,120,0.9);box-shadow:0 0 8px rgba(80,210,120,0.3);';
+    } else if (isChargedGreenSta && !isHL) {
+      wrapperBorderStyle = 'border:2px solid var(--green);box-shadow:0 0 12px rgba(74,158,106,0.4);';
+    }
+    // Passive rows sit above the art, content rotated 180° so they read normally when card is flipped
     const passiveRows = sec.deployed.map(function(d) {
-      return '<div class="sec-passive-row">' + rewardIcons(d.deployed, 14) + '</div>';
+      const isGreenDep = d.deployed && isGreenAbility(d.deployed.special || '');
+      const isChargedGreenDep = isGreenDep && (d.chargeCount || 0) >= (d.deployed.chargeMax || 1);
+      const depRowBg = isGreenDep ? (isChargedGreenDep ? 'rgba(74,158,106,0.4)' : '#1a3a1a') : '#5c1a1a';
+      return '<div class="sec-passive-row" style="background:' + depRowBg + ';border-top:none;border-bottom:1px solid rgba(255,255,255,0.08);">'
+        + rewardIcons(d.deployed, boardPassiveIconSize(d.deployed), d.chargeCount || 0)
+        + '</div>';
     }).join('');
-    html += '<div class="sector ' + (isHL ? 'highlighted' : '') + '">'
+    html += '<div class="sector-wrapper ' + (isHL ? 'highlighted' : '') + '" style="' + wrapperBorderStyle + '">'
+      + passiveRows
+      + '<div class="sector">'
       + '<div class="sec-art" style="background:' + artBg + ';">'
       + '<div class="sec-stars"></div>'
       + (stationed.cost ? '<div class="sec-cost">' + stationed.cost + '</div>' : '')
       + '<div class="sec-num">' + s + '</div>'
-      + '<div class="sec-ship-icon">🚀</div>'
+      + '<div class="sec-ship-icon">' + (stationed.isColony ? '🌍' : '🚀') + '</div>'
       + '<div class="sec-namebar" style="background:' + nameBg + ';">'
-      + '<div class="sec-name">' + stationed.name + '</div>'
-      + '<div class="sec-type">' + (stationed.type||'Starting Card') + '</div>'
+      + '<div class="sec-name">' + (stationed.isColony ? 'Colony Card' : stationed.name) + '</div>'
+      + '<div class="sec-type">' + (stationed.isColony ? 'S' + s + ' · Locked' : (stationed.type||'Starting Card')) + '</div>'
       + '</div>'
       + '</div>'
-      + '<div class="sec-station">' + rewardIcons(stationed.station, 16) + '</div>'
-      + passiveRows
+      + '<div class="sec-station" style="background:' + stationRowBg + ';">' + stationContent + '</div>'
+      + (stationed.deployed ? '<div class="sec-passive-row" style="background:' + (isGreenAbility(stationed.deployed.special || '') ? '#1a3a1a' : '#5c1a1a') + ';border-top:1px solid rgba(255,255,255,0.08);">'
+        + '<div style="transform:rotate(180deg);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;width:100%;">'
+        + rewardIcons(stationed.deployed, boardPassiveIconSize(stationed.deployed)) + '</div></div>' : '')
+      + '</div>'
       + '</div>';
   }
   html += '</div></div>';
