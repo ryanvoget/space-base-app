@@ -346,7 +346,100 @@
 
     /* Safe area padding for notch phones */
     .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+    /* ─── RESPONSIVE MOBILE LAYOUT ──────────────────────────────── */
+
+    /* Portrait mobile: 6 shop cards per row, sectors wrap to 2 rows of 6 */
+    @media (orientation: portrait) and (max-width: 600px) {
+      /* Roll dice button and dice result: scale to 2/3 */
+      .dice-zone { zoom: 0.667; }
+
+      /* Shop: zoom cards to 41% — 6 × 36.9px + 5 × 3px gap ≈ 236px fits any phone */
+      .shop-row {
+        flex-wrap: wrap !important;
+        overflow-x: hidden !important;
+        gap: 3px !important;
+        justify-content: center !important;
+      }
+      .shop-card {
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
+        min-width: 90px !important;
+        max-width: 90px !important;
+        zoom: 0.41 !important;
+      }
+
+      /* Sectors: move stats above, wrap grid to 2 rows of 6 */
+      .sectors-outer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+      }
+      .sector-stats-panel {
+        flex: none !important;
+        width: 100% !important;
+        height: auto !important;
+        flex-direction: row !important;
+        padding-top: 0 !important;
+        gap: 4px !important;
+        zoom: 0.5 !important;
+      }
+      .sector-stats-panel > div {
+        height: 50px !important;
+        min-height: 0 !important;
+        flex: 1 !important;
+      }
+      .sectors-container {
+        flex: none !important;
+        width: 100% !important;
+        overflow: visible !important;
+      }
+      .sectors-grid {
+        flex-wrap: wrap !important;
+        overflow-x: visible !important;
+        gap: 3px !important;
+        justify-content: flex-start !important;
+      }
+      /* Zoom sectors to 21% — 6 × 36.75px + 5 × 3px gap ≈ 236px fits any phone */
+      .sector-wrapper {
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
+        min-width: 175px !important;
+        max-width: 175px !important;
+        zoom: 0.21 !important;
+      }
+    }
+
+    /* Landscape mobile: same shop zoom, 12 sectors in one row */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .shop-row {
+        flex-wrap: wrap !important;
+        overflow-x: hidden !important;
+        gap: 3px !important;
+        justify-content: center !important;
+      }
+      .shop-card {
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
+        min-width: 90px !important;
+        max-width: 90px !important;
+        zoom: 0.41 !important;
+      }
+      /* Zoom sectors to 19% — 12 × 33.25px + 11 × 3px gap ≈ 432px fits landscape */
+      .sectors-grid {
+        overflow-x: hidden !important;
+        gap: 3px !important;
+        flex-wrap: nowrap !important;
+      }
+      .sector-wrapper {
+        flex: 0 0 auto !important;
+        flex-shrink: 0 !important;
+        min-width: 175px !important;
+        max-width: 175px !important;
+        zoom: 0.19 !important;
+      }
+    }
   </style>
+  <style id="mz"></style>
 </head>
 <body>
 <div id="app">
@@ -1801,13 +1894,13 @@ function renderMain() {
           const bonusNote = G.nextRollTotal !== null ? 'Roll total forced → ' + G.nextRollTotal : '+' + G.nextRollBonus + ' to roll total';
           html += '<div style="background:rgba(240,192,64,0.12);border:1px solid rgba(240,192,64,0.5);border-radius:8px;padding:8px;margin-bottom:8px;font-size:11px;color:#f0c040;text-align:center;">⚡ Next roll bonus active: ' + bonusNote + '</div>';
         }
-        html += `<button class="btn primary block" onclick="rollDice()" style="padding:16px;font-size:16px;margin-bottom:10px;">🎲 Roll Dice</button>`;
+        html += `<div class="dice-zone"><button class="btn primary block" onclick="rollDice()" style="padding:16px;font-size:16px;margin-bottom:10px;">🎲 Roll Dice</button></div>`;
       }
     }
 
     if (G.phase === 'choose-dice') {
       const effTotal = (G.rollTotal !== null && G.rollTotal !== undefined) ? G.rollTotal : (d1 + d2 + (G.rollBonus || 0));
-      html += '<div class="card">';
+      html += '<div class="dice-zone"><div class="card">';
       html += '<div class="dice-display">';
       html += '<div class="die">' + d1 + '</div>';
       html += '<span style="color:var(--text2);">+</span>';
@@ -1823,7 +1916,7 @@ function renderMain() {
       html += '<button class="btn primary sm" onclick="chooseDiceMode(\'split\')">Sectors ' + d1 + ' &amp; ' + d2 + '</button>';
       html += '<button class="btn sm" onclick="chooseDiceMode(\'total\')">Sector ' + effTotal + '</button>';
       html += '</div>';
-      html += '</div>';
+      html += '</div></div>';
     }
 
     if (G.phase === 'buy') {
@@ -1860,9 +1953,9 @@ function renderMain() {
         html += '<button class="btn sm primary" onclick="skipClaim()">Continue</button>';
       } else {
         html += '<p style="font-size:12px;margin-bottom:8px;">Pick any Level ' + claimLvl + ' card — it\'s yours for free:</p>';
-        html += '<div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;">';
+        html += '<div class="shop-row" style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;">';
         claimCards.forEach(function(card) {
-          html += '<div style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:2px solid #c9a43a;display:flex;flex-direction:column;">'
+          html += '<div class="shop-card" style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:2px solid #c9a43a;display:flex;flex-direction:column;">'
             + '<div style="background:' + artBgs[claimLvl-1] + ';padding:6px 6px 4px;position:relative;flex:1;min-height:60px;display:flex;flex-direction:column;justify-content:flex-end;">'
             + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
             + '<div style="position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.cost + '</div>'
@@ -2004,14 +2097,14 @@ function renderMain() {
   if (shopView === 'colony') {
     // Colony cards view
     html += '<div style="font-size:10px;color:var(--text2);text-align:center;margin-bottom:8px;">Places on your board (pushes active card to passive) and awards VP immediately. Locked sectors cannot be upgraded.</div>';
-    html += '<div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;justify-content:center;">';
+    html += '<div class="shop-row" style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;justify-content:center;">';
     COLONY_CARDS.forEach(function(colony) {
       const purchased = G.colonyPurchased && G.colonyPurchased[colony.sector];
       const canBuy = isCurrent && G.phase === 'buy' && !purchased && cp.credits >= colony.cost;
       const showBtn = isCurrent && G.phase === 'buy' && !purchased;
       const alreadyOwned = cp.sectors[colony.sector] && cp.sectors[colony.sector].colonyLocked;
       const colonyBuyBtn = showBtn ? '<button class="btn sm ' + (canBuy?'primary':'') + '" ' + (canBuy?'':'disabled') + ' onclick="buyColony(' + colony.sector + ')" style="width:100%;padding:4px;font-size:11px;border-radius:4px;">Buy</button>' : '';
-      html += '<div style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;opacity:' + (purchased?'0.55':'1') + ';">'
+      html += '<div class="shop-card" style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;opacity:' + (purchased?'0.55':'1') + ';">'
         // Artwork area
         + '<div style="background:linear-gradient(160deg,#1a0a28 0%,#2d1040 50%,#0d0818 100%);padding:6px 6px 4px;position:relative;flex:1;min-height:60px;display:flex;flex-direction:column;justify-content:flex-end;">'
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
@@ -2043,7 +2136,7 @@ function renderMain() {
     if (!cards.length) return;
     const canBuyAny = isCurrent && G.phase === 'buy';
     html += '<div style="font-size:10px;font-weight:600;color:var(--text2);margin:8px 0 4px;text-transform:uppercase;letter-spacing:0.6px;text-align:center;">Level ' + lvl + ' · ' + ranges[lvl-1] + '</div>';
-    html += '<div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;justify-content:center;">';
+    html += '<div class="shop-row" style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;justify-content:center;">';
     cards.forEach(function(card) {
       const sectorLocked = cp.sectors[card.sector] && cp.sectors[card.sector].colonyLocked;
       const filterActive = (G.extraBuys || 0) === 0 && G.extraBuyFilter;
@@ -2056,7 +2149,7 @@ function renderMain() {
                      'linear-gradient(160deg,#1a0a28 0%,#3d1a5c 50%,#1a0d3c 100%)'][lvl-1];
       const nameBarBg = ['#0a1a3a','#0a1a0a','#1a0a2d'][lvl-1];
       const shipBuyBtn = showBtn ? (sectorLocked ? '<div style="font-size:9px;color:#8877bb;text-align:center;padding:3px 0;">Colony locked</div>' : filterBlocked ? '<div style="font-size:9px;color:#888;text-align:center;padding:3px 0;">Out of range</div>' : '<button class="btn sm ' + (canBuy ? 'primary' : '') + '" ' + (canBuy ? '' : 'disabled') + ' onclick="buyCard(\'' + card.id + '\')" style="width:100%;padding:4px;font-size:11px;margin-top:4px;border-radius:4px;">Buy</button>') : '';
-      html += '<div style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;">'
+      html += '<div class="shop-card" style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;">'
 
         // Artwork area
         + '<div style="background:' + artBg + ';padding:6px 6px 4px;position:relative;flex:1;min-height:60px;display:flex;flex-direction:column;justify-content:flex-end;">'
@@ -2098,10 +2191,10 @@ function renderMain() {
   // Sectors (3/4 right) + Stats panel (1/4 left) side by side
   html += '<div class="card" style="margin-top:8px;">';
   html += '<h2>' + (isCurrent ? 'Your' : vp.name + "'s") + ' Sectors</h2>';
-  html += '<div style="display:flex;gap:8px;align-items:flex-start;">';
+  html += '<div class="sectors-outer" style="display:flex;gap:8px;align-items:flex-start;">';
 
   // Left 1/4: compact stats
-  html += '<div style="flex:0 0 68px;display:flex;flex-direction:column;gap:6px;padding-top:2px;height:252px;">';
+  html += '<div class="sector-stats-panel" style="flex:0 0 68px;display:flex;flex-direction:column;gap:6px;padding-top:2px;height:252px;">';
   html += '<div style="background:var(--surface2);border-radius:8px;padding:7px 4px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
     + '<svg width="20" height="20" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#BA7517" opacity="0.2"/><circle cx="16" cy="16" r="10" fill="#BA7517" opacity="0.5"/><circle cx="16" cy="16" r="7" fill="#BA7517"/><text x="16" y="20" text-anchor="middle" font-size="9" font-weight="700" fill="#FAEEDA" font-family="sans-serif">C</text></svg>'
     + '<div style="font-size:15px;font-weight:700;color:var(--gold);line-height:1.1;">' + vp.credits + '</div>'
@@ -2120,7 +2213,7 @@ function renderMain() {
   html += '</div>';
 
   // Right 3/4: scrollable sector row
-  html += '<div style="flex:1;overflow:hidden;">';
+  html += '<div class="sectors-container" style="flex:1;overflow:hidden;">';
   html += '<div class="sectors-grid" style="justify-content:center;">';
   for (let s=1; s<=12; s++) {
     const sec = vp.sectors[s];
@@ -2236,6 +2329,40 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }
+
+// ─── DYNAMIC MOBILE ZOOM ─────────────────────────────────────────────────────
+function setMobileZoom() {
+  const mz = document.getElementById('mz');
+  if (!mz) return;
+  const portrait  = window.matchMedia('(orientation: portrait) and (max-width: 600px)').matches;
+  const landscape = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
+  if (portrait) {
+    // avail = screen width minus arrow padding (44×2) and card padding (12×2)
+    const avail = window.innerWidth - 112;
+    // floor the cell width so 6 cells + 5×3px gaps always fit without overflow
+    const cellW = Math.floor((avail - 15) / 6);
+    const sz = (cellW / 175).toFixed(4);
+    mz.textContent = `
+      @media (orientation: portrait) and (max-width: 600px) {
+        .sector-wrapper { zoom: ${sz} !important; }
+      }`;
+  } else if (landscape) {
+    // avail = screen width minus arrow padding, card padding, and stats panel (68+8)
+    const avail = window.innerWidth - 188;
+    // floor the cell width so 12 cells + 11×3px gaps always fit without overflow
+    const cellW = Math.floor((avail - 33) / 12);
+    const sz = (cellW / 175).toFixed(4);
+    mz.textContent = `
+      @media (orientation: landscape) and (max-height: 500px) {
+        .sector-wrapper { zoom: ${sz} !important; }
+      }`;
+  } else {
+    mz.textContent = '';
+  }
+}
+window.addEventListener('DOMContentLoaded', setMobileZoom);
+window.addEventListener('resize', setMobileZoom);
+window.addEventListener('orientationchange', () => setTimeout(setMobileZoom, 150));
 </script>
 </body>
 </html>
