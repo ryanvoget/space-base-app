@@ -13,6 +13,9 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 
   <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
   <title>Space Base</title>
 
   <style>
@@ -222,10 +225,11 @@
       top: 8px; left: 8px;
       width: 28px; height: 28px;
       border-radius: 50%;
-      background: #c9933a;
+      background: radial-gradient(circle at 38% 32%, #F0B000 0%, #CC8800 50%, #7A4800 100%);
       display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 800; color: #fff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      font-size: 18px; font-weight: 900; font-family: 'Bebas Neue', Impact, sans-serif; color: #000;
+      text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+      box-shadow: inset 0 0 0 2px rgba(255,210,60,0.3), 0 2px 5px rgba(0,0,0,0.5);
     }
     .sector .sec-num {
       position: absolute;
@@ -353,29 +357,21 @@
       transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0s;
       will-change: transform;
     }
-    .sector-wrapper:hover, .sector-wrapper.peek {
-      transform: scale(1.4);
-      z-index: 500;
-    }
     .shop-card:hover, .shop-card.peek {
       transform: scale(1.4);
       z-index: 500;
     }
     /* Let scaled cards escape their clipping ancestors */
-    .sectors-container:has(.sector-wrapper:hover),
-    .sectors-container:has(.sector-wrapper.peek),
     .shop-row:has(.shop-card:hover),
     .shop-row:has(.shop-card.peek) {
       overflow: visible !important;
     }
     /* Mobile portrait: cards are zoomed to ~24%, need bigger scale to be readable */
     @media (orientation: portrait) and (max-width: 600px) {
-      .sector-wrapper:hover, .sector-wrapper.peek { transform: scale(3.2); }
       .shop-card:hover, .shop-card.peek { transform: scale(2.4); }
     }
     /* Mobile landscape: cards are zoomed to ~19% */
     @media (orientation: landscape) and (max-height: 500px) {
-      .sector-wrapper:hover, .sector-wrapper.peek { transform: scale(3.5); }
       .shop-card:hover, .shop-card.peek { transform: scale(2.4); }
     }
 
@@ -386,18 +382,18 @@
       /* Roll dice button and dice result: scale to 2/3 */
       .dice-zone { zoom: 0.667; }
 
-      /* Shop: zoom cards to 41% — 6 × 36.9px + 5 × 3px gap ≈ 236px fits any phone */
+      /* Shop: zoom cards to 41% — 6 × 44.3px + 5 × 4px gap ≈ 286px fits most phones */
       .shop-row {
         flex-wrap: wrap !important;
         overflow-x: hidden !important;
-        gap: 3px !important;
+        gap: 4px !important;
         justify-content: center !important;
       }
       .shop-card {
         flex: 0 0 auto !important;
         flex-shrink: 0 !important;
-        min-width: 90px !important;
-        max-width: 90px !important;
+        min-width: 108px !important;
+        max-width: 108px !important;
         zoom: 0.41 !important;
       }
 
@@ -446,14 +442,14 @@
       .shop-row {
         flex-wrap: wrap !important;
         overflow-x: hidden !important;
-        gap: 3px !important;
+        gap: 4px !important;
         justify-content: center !important;
       }
       .shop-card {
         flex: 0 0 auto !important;
         flex-shrink: 0 !important;
-        min-width: 90px !important;
-        max-width: 90px !important;
+        min-width: 108px !important;
+        max-width: 108px !important;
         zoom: 0.41 !important;
       }
       /* Zoom sectors to 19% — 12 × 33.25px + 11 × 3px gap ≈ 432px fits landscape */
@@ -470,14 +466,335 @@
         zoom: 0.19 !important;
       }
     }
+
+    /* ── TITLE SCREEN ─────────────────────────────────────────────────────── */
+    #title-screen {
+      background: radial-gradient(ellipse at 50% 30%, #0d1a3a 0%, #04080f 100%);
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    #title-screen::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 35% 8%,  rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 5%,  rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 25%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 10% 45%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 60%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 82% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 90%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(2px 2px at 70% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 5%  70%, rgba(255,255,255,0.4) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    .title-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 340px;
+      padding: 32px 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .title-logo {
+      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-size: clamp(52px, 14vw, 80px);
+      letter-spacing: 4px;
+      line-height: 1;
+      color: #fff;
+      text-shadow: 0 0 30px rgba(58,143,212,0.8), 0 4px 12px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+    .title-subtitle {
+      font-size: 13px;
+      color: var(--text2);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .menu-btn {
+      width: 100%;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      font-family: 'Bebas Neue', Impact, sans-serif;
+      letter-spacing: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: transform 0.1s, filter 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .menu-btn:active { transform: scale(0.97); filter: brightness(0.9); }
+    .menu-btn.primary-menu {
+      background: linear-gradient(135deg, #1a4a8a 0%, #0f2d5a 100%);
+      color: #fff;
+      border: 1px solid rgba(58,143,212,0.5);
+      box-shadow: 0 4px 18px rgba(58,143,212,0.25);
+    }
+    .menu-btn.secondary-menu {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .menu-btn .btn-icon { font-size: 20px; flex-shrink: 0; }
+    .menu-version { font-size: 11px; color: rgba(255,255,255,0.2); margin-top: 8px; letter-spacing: 1px; }
+
+    /* ── OVERLAY SCREENS (Settings / How to Play / Profile) ────────────────── */
+    .overlay-screen {
+      background: var(--bg);
+    }
+    .overlay-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border-bottom: 0.5px solid var(--border);
+      flex-shrink: 0;
+    }
+    .overlay-header h1 {
+      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-size: 22px;
+      letter-spacing: 2px;
+      font-weight: 400;
+    }
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--blue);
+      font-size: 15px;
+      cursor: pointer;
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    /* Settings sliders */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-label { font-size: 14px; font-weight: 500; }
+    .setting-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+    .vol-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 130px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--surface2);
+      outline: none;
+      cursor: pointer;
+    }
+    .vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--blue);
+      cursor: pointer;
+    }
+    .vol-value { font-size: 13px; color: var(--text2); width: 32px; text-align: right; }
+    /* How to Play */
+    .rule-section { margin-bottom: 20px; }
+    .rule-section h3 { font-size: 14px; font-weight: 700; color: var(--blue); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .rule-section p, .rule-section li { font-size: 13px; color: var(--text2); line-height: 1.6; }
+    .rule-section ul { padding-left: 16px; }
+    .rule-section li { margin-bottom: 4px; }
+    .rule-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .tag-gold { background: var(--gold-bg); color: var(--gold); }
+    .tag-blue { background: var(--blue-bg); color: var(--blue); }
+    .tag-green { background: var(--green-bg); color: var(--green); }
+    /* Profile */
+    .profile-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a4a8a 0%, #0f2d5a 100%);
+      border: 2px solid var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 16px;
+    }
+    .profile-save-btn {
+      width: 100%;
+      margin-top: 8px;
+    }
+    /* ── IN-GAME SETTINGS PANEL ──────────────────────────────────────────────── */
+    .ingame-menu-btn {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ingame-menu-btn:active { background: rgba(255,255,255,0.1); }
+    .ingame-menu-danger { color: #e05c5c; border-color: rgba(224,92,92,0.3); }
+    .ingame-menu-cancel { color: var(--text2); }
   </style>
   <style id="mz"></style>
 </head>
 <body>
 <div id="app">
 
+  <!-- TITLE SCREEN -->
+  <div id="title-screen" class="screen active">
+    <div class="title-content">
+      <div style="font-size:56px;line-height:1;">🚀</div>
+      <div class="title-logo">Space Base</div>
+      <div class="title-subtitle">Pass &amp; Play · Solo vs AI</div>
+      <button class="menu-btn primary-menu" onclick="show('setup-screen');initSetup()">
+        <span class="btn-icon">▶</span> Play Game
+      </button>
+      <button class="menu-btn secondary-menu" onclick="show('profile-screen');loadProfileScreen()">
+        <span class="btn-icon">👤</span> Profile
+      </button>
+      <button class="menu-btn secondary-menu" onclick="show('howtoplay-screen')">
+        <span class="btn-icon">📖</span> How to Play
+      </button>
+      <button class="menu-btn secondary-menu" onclick="show('settings-screen');loadSettingsScreen()">
+        <span class="btn-icon">⚙️</span> Settings
+      </button>
+      <div class="menu-version">v1.0</div>
+    </div>
+  </div>
+
+  <!-- SETTINGS SCREEN -->
+  <div id="settings-screen" class="screen overlay-screen">
+    <div class="overlay-header">
+      <button class="back-btn" onclick="show('title-screen')">← Back</button>
+      <h1>Settings</h1>
+    </div>
+    <div class="scroll-area safe-bottom">
+      <div class="card">
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">🎵 Music Volume</div>
+          </div>
+          <input type="range" class="vol-slider" id="music-vol-slider" min="0" max="100" value="40"
+            oninput="onMusicVol(this.value)">
+          <span class="vol-value" id="music-vol-val">40</span>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">🔔 SFX Volume</div>
+            <div class="setting-sub">Coming soon</div>
+          </div>
+          <input type="range" class="vol-slider" id="sfx-vol-slider" min="0" max="100" value="70"
+            oninput="onSfxVol(this.value)">
+          <span class="vol-value" id="sfx-vol-val">70</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO PLAY SCREEN -->
+  <div id="howtoplay-screen" class="screen overlay-screen">
+    <div class="overlay-header">
+      <button class="back-btn" onclick="show('title-screen')">← Back</button>
+      <h1>How to Play</h1>
+    </div>
+    <div class="scroll-area safe-bottom">
+      <div class="card">
+        <div class="rule-section">
+          <h3>Goal</h3>
+          <p>Be the first player to reach <strong>40 Victory Points</strong>. On each turn, roll dice to earn credits and income, then spend credits to buy better ships.</p>
+        </div>
+        <div class="rule-section">
+          <h3>Your Spaceship</h3>
+          <p>Each player has 12 sectors (numbered 2–12). Every sector holds one <em>stationed</em> ship (active on your roll) and any number of <em>deployed</em> ships (passive on others' rolls).</p>
+        </div>
+        <div class="rule-section">
+          <h3>Taking a Turn</h3>
+          <ul>
+            <li><strong>Roll</strong> two dice. Choose to use the <em>total</em> or <em>split</em> them individually.</li>
+            <li><strong>Active rewards</strong>: your stationed card in the matching sector fires.</li>
+            <li><strong>Passive rewards</strong> (everyone else): deployed cards in matching sectors fire for all other players.</li>
+            <li><strong>Buy</strong> one ship from the shop, or pass.</li>
+          </ul>
+        </div>
+        <div class="rule-section">
+          <h3>Buying Ships</h3>
+          <p>Ships cost <span class="rule-tag tag-gold">Credits</span> shown on the card. When you buy, choose to:</p>
+          <ul>
+            <li><strong>Station</strong> it — replaces the active ship in that sector. The old ship is deployed (passive).</li>
+            <li><strong>Deploy</strong> it — place it passively in any sector you control.</li>
+          </ul>
+        </div>
+        <div class="rule-section">
+          <h3>Rewards</h3>
+          <ul>
+            <li><span class="rule-tag tag-gold">Credits</span> Spent to buy ships</li>
+            <li><span class="rule-tag tag-blue">Income</span> Paid out in credits at the start of your turn (max 10)</li>
+            <li><span class="rule-tag tag-green">VP</span> Victory points — reach 40 to win</li>
+          </ul>
+        </div>
+        <div class="rule-section">
+          <h3>Special Abilities</h3>
+          <p>Some ships have unique abilities like arrows (fire a second sector), charge cubes (spend to activate), or set-die effects. These are described on each card in italic text.</p>
+        </div>
+        <div class="rule-section">
+          <h3>Winning</h3>
+          <p>The first player whose VP reaches <strong>40</strong> at the <em>end of their turn</em> wins. If multiple players reach 40 in the same round, the one with the most VP wins.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE SCREEN -->
+  <div id="profile-screen" class="screen overlay-screen">
+    <div class="overlay-header">
+      <button class="back-btn" onclick="show('title-screen')">← Back</button>
+      <h1>Profile</h1>
+    </div>
+    <div class="scroll-area safe-bottom">
+      <div class="card" style="text-align:center;">
+        <div class="profile-avatar" id="profile-avatar">👤</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Commander name</div>
+        <label style="display:block;text-align:left;font-size:12px;color:var(--text2);margin-bottom:4px;">Username</label>
+        <input class="name-input" type="text" id="profile-name-input" placeholder="Enter your name"
+          autocomplete="off" maxlength="20" oninput="updateProfileAvatar(this.value)">
+        <button class="btn primary block profile-save-btn" onclick="saveProfile()">Save Profile</button>
+        <p id="profile-saved-msg" style="margin-top:10px;color:var(--green);font-size:13px;display:none;">Profile saved!</p>
+      </div>
+    </div>
+  </div>
+
   <!-- SETUP SCREEN -->
-  <div id="setup-screen" class="screen active">
+  <div id="setup-screen" class="screen">
     <div class="scroll-area safe-bottom">
       <div class="setup-header">
         <div class="icon">🚀</div>
@@ -516,7 +833,7 @@
     <div id="active-player-banner"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:var(--surface);border-bottom:0.5px solid var(--border);flex-shrink:0;">
       <div id="viewer-label" style="font-size:13px;font-weight:500;color:var(--text);flex:1;"></div>
-      <button id="music-btn" onclick="toggleMusic()" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px;" title="Toggle music">🔇</button>
+      <button onclick="openIngameSettings()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;line-height:1;" title="Game menu">⚙️</button>
     </div>
     <div class="scroll-area safe-bottom" id="main-content"></div>
   </div>
@@ -531,6 +848,30 @@
       </div>
       <div class="card" id="final-scores"></div>
       <button class="btn primary block" onclick="resetGame()" style="margin-top: 10px; padding: 14px;">Play Again</button>
+    </div>
+  </div>
+
+  <!-- IN-GAME SETTINGS PANEL -->
+  <div id="ingame-settings-backdrop" onclick="closeIngameSettings()"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;-webkit-tap-highlight-color:transparent;"></div>
+  <div id="ingame-settings-panel"
+    style="display:none;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:var(--surface);border-radius:18px 18px 0 0;border-top:1px solid var(--border2);padding:20px 20px 32px;z-index:201;transform:translateY(100%);transition:transform 0.22s cubic-bezier(0.4,0,0.2,1);">
+    <div style="width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);margin:0 auto 18px;"></div>
+    <div style="font-family:'Bebas Neue',Impact,sans-serif;font-size:22px;letter-spacing:2px;text-align:center;margin-bottom:18px;">Game Menu</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button id="ingame-music-btn" onclick="toggleMusic()" class="ingame-menu-btn">
+        <span id="ingame-music-icon">🔇</span>
+        <span id="ingame-music-label">Music: Off</span>
+      </button>
+      <button onclick="goToMainMenu()" class="ingame-menu-btn">
+        <span>🏠</span><span>Main Menu</span>
+      </button>
+      <button onclick="confirmResetGame()" class="ingame-menu-btn ingame-menu-danger">
+        <span>🔄</span><span>Reset Game</span>
+      </button>
+      <button onclick="closeIngameSettings()" class="ingame-menu-btn ingame-menu-cancel">
+        <span>✕</span><span>Back to Game</span>
+      </button>
     </div>
   </div>
 
@@ -719,13 +1060,59 @@ function shuffle(arr) {
   return a;
 }
 
+// ─── PROFILE & SETTINGS ──────────────────────────────────────────────────────
+let musicVol = parseInt(localStorage.getItem('sb_musicVol') ?? '40');
+let sfxVol   = parseInt(localStorage.getItem('sb_sfxVol')   ?? '70');
+
+function loadSettingsScreen() {
+  const ms = document.getElementById('music-vol-slider');
+  const mv = document.getElementById('music-vol-val');
+  const ss = document.getElementById('sfx-vol-slider');
+  const sv = document.getElementById('sfx-vol-val');
+  if (ms) { ms.value = musicVol; mv.textContent = musicVol; }
+  if (ss) { ss.value = sfxVol;   sv.textContent = sfxVol; }
+}
+function onMusicVol(v) {
+  musicVol = parseInt(v);
+  document.getElementById('music-vol-val').textContent = musicVol;
+  bgAudio.volume = musicVol / 100;
+  localStorage.setItem('sb_musicVol', musicVol);
+}
+function onSfxVol(v) {
+  sfxVol = parseInt(v);
+  document.getElementById('sfx-vol-val').textContent = sfxVol;
+  localStorage.setItem('sb_sfxVol', sfxVol);
+}
+
+function loadProfileScreen() {
+  const saved = localStorage.getItem('sb_profileName') || '';
+  const inp = document.getElementById('profile-name-input');
+  if (inp) { inp.value = saved; updateProfileAvatar(saved); }
+  const msg = document.getElementById('profile-saved-msg');
+  if (msg) msg.style.display = 'none';
+}
+function updateProfileAvatar(name) {
+  const av = document.getElementById('profile-avatar');
+  if (!av) return;
+  const first = (name || '').trim().charAt(0).toUpperCase();
+  av.textContent = first || '👤';
+}
+function saveProfile() {
+  const inp = document.getElementById('profile-name-input');
+  const name = inp ? inp.value.trim() : '';
+  localStorage.setItem('sb_profileName', name);
+  const msg = document.getElementById('profile-saved-msg');
+  if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display = 'none', 2000); }
+}
+
 // ─── SETUP ───────────────────────────────────────────────────────────────────
 function initSetup() {
   const c = document.getElementById('player-names-container');
   c.innerHTML = '';
+  const savedName = localStorage.getItem('sb_profileName') || 'Commander';
   const d = document.createElement('div');
   d.innerHTML = `<label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px;">Your name</label>
-    <input class="name-input" type="text" id="pname-0" value="Commander" autocomplete="off">`;
+    <input class="name-input" type="text" id="pname-0" value="${savedName.replace(/"/g,'&quot;')}" autocomplete="off">`;
   c.appendChild(d);
 }
 
@@ -787,9 +1174,9 @@ function renderReveal() {
     + '<div style="background:linear-gradient(160deg,#0a1628 0%,#1a2a5c 50%,#0d1f3c 100%);padding:10px 10px 6px;position:relative;min-height:100px;display:flex;flex-direction:column;justify-content:flex-end;">'
     + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:14px 14px;opacity:0.15;pointer-events:none;"></div>'
     // Cost circle top-left
-    + '<div style="position:absolute;top:8px;left:8px;width:28px;height:28px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.cost + '</div>'
+    + '<div style="position:absolute;top:8px;left:8px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;font-family:\'Bebas Neue\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 5px rgba(0,0,0,0.5);">' + card.cost + '</div>'
     // Sector circle top-right
-    + '<div style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
+    + '<div style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
     // Ship emoji
     + '<div style="text-align:center;font-size:36px;margin-bottom:4px;">🚀</div>'
     // Name bar
@@ -872,28 +1259,28 @@ function rewardItemCount(r) {
   return [r.credits, r.income, r.vp, r.arrow, r.special, r.chargeMax].filter(Boolean).length;
 }
 function shopPassiveIconSize(r) {
-  if (!r) return 12;
+  if (!r) return 14;
   const n = rewardItemCount(r);
   const sl = r.special ? r.special.length : 0;
-  if (sl > 14) return 7;
-  if (sl > 8)  return 8;
-  if (n <= 1)  return 12;
-  if (n === 2) return 11;
-  if (n === 3) return 9;
-  return 8;
+  if (sl > 14) return 8;
+  if (sl > 8)  return 10;
+  if (n <= 1)  return 14;
+  if (n === 2) return 13;
+  if (n === 3) return 11;
+  return 10;
 }
 function shopActiveIconSize(r) {
-  if (!r) return 13;
+  if (!r) return 16;
   const n = rewardItemCount(r);
   const sl = r.special ? r.special.length : 0;
   const extraCharge = Math.max(0, (r.chargeMax || 0) - 1);
   const effectiveN = n + extraCharge;
-  if (effectiveN >= 5) return 9;
-  if (sl > 14) return 10;
-  if (sl > 8 || effectiveN >= 4) return 11;
-  if (n === 3) return 12;
-  if (n <= 1)  return 14;
-  return 13;
+  if (effectiveN >= 5) return 11;
+  if (sl > 14) return 12;
+  if (sl > 8 || effectiveN >= 4) return 13;
+  if (n === 3) return 14;
+  if (n <= 1)  return 17;
+  return 16;
 }
 function boardActiveIconSize(r) {
   if (!r) return 26;
@@ -933,18 +1320,13 @@ function rewardStr(r) {
   return p.join(' ') || '—';
 }
 
+let _iconUid = 0;
 function rewardIcons(r, size=12, chargeCount=0) {
   if (!r) return '';
-  const fs = Math.round(size * 0.92);
-  const coinSvg = (n) => `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size*1.8}px;height:${size*1.8}px;border-radius:50%;background:#c9933a;font-size:${fs}px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);flex-shrink:0;">${n}</span>`;
-  const incomeSvg = (n) => `<span style="display:inline-flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;">
-    <svg width="${size*1.8}" height="${size*1.8}" viewBox="0 0 32 32"><polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="#3B6D11"/></svg>
-    <span style="position:absolute;font-size:${fs}px;font-weight:800;color:#C0DD97;">${n}</span>
-    </span>`;
-  const vpSvg = (n) => `<span style="display:inline-flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;">
-    <svg width="${size*1.8}" height="${size*1.8}" viewBox="0 0 32 32"><path d="M16 2 C16 2 24 8 24 18 L20 22 L12 22 L8 18 C8 8 16 2 16 2Z" fill="#7F77DD"/><circle cx="16" cy="17" r="4" fill="#534AB7"/><path d="M8 18 L4 25 L11 22Z" fill="#534AB7" opacity="0.8"/><path d="M24 18 L28 25 L21 22Z" fill="#534AB7" opacity="0.8"/><path d="M12 22 L13 30 L16 26 L19 30 L20 22Z" fill="#7F77DD" opacity="0.9"/></svg>
-    <span style="position:absolute;font-size:${fs}px;font-weight:800;color:#fff;">${n}</span>
-    </span>`;
+  const fs = Math.round(size * 1.4);
+  const coinSvg = (n) => `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size*1.8}px;height:${size*1.8}px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);box-shadow:inset 0 0 0 ${Math.max(1,Math.round(size*0.1))}px rgba(255,210,60,0.3),0 2px 5px rgba(0,0,0,0.5);flex-shrink:0;"><span style="font-size:${fs}px;font-weight:900;font-family:\'Bebas Neue\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;line-height:1;">${n}</span></span>`;
+  const incomeSvg = (n) => { const gid='ig'+(++_iconUid); const d=size*1.8; return `<svg width="${d}" height="${d}" viewBox="0 0 32 32" style="flex-shrink:0;"><defs><radialGradient id="${gid}" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#60EF28"/><stop offset="48%" stop-color="#20BB00"/><stop offset="100%" stop-color="#086000"/></radialGradient></defs><polygon points="16,0.5 27.5,7.2 27.5,24.8 16,31.5 4.5,24.8 4.5,7.2" fill="#053D00"/><polygon points="16,2.5 25.5,8.4 25.5,23.6 16,29.5 6.5,23.6 6.5,8.4" fill="url(#${gid})"/><ellipse cx="16" cy="17" rx="13" ry="3.5" transform="rotate(-35,16,16)" fill="none" stroke="#88FF44" stroke-width="2.2" opacity="0.85"/><text x="16" y="25" text-anchor="middle" font-size="25" font-weight="900" fill="#000" stroke="#fff" stroke-width="2.5" paint-order="stroke" font-family="\'Bebas Neue\',Impact,sans-serif">${n}</text></svg>`; };
+  const vpSvg = (n) => { const gid='rg'+(++_iconUid); const w=size*1.7; const h=size*2.1; return `<svg width="${w}" height="${h}" viewBox="0 0 32 44" style="flex-shrink:0;"><defs><linearGradient id="${gid}" x1="25%" y1="0%" x2="75%" y2="100%"><stop offset="0%" stop-color="#C8CDE4"/><stop offset="50%" stop-color="#9CA2C0"/><stop offset="100%" stop-color="#6A7090"/></linearGradient></defs><polygon points="8,24 1,40 8,36" fill="#12106B"/><polygon points="24,24 31,40 24,36" fill="#12106B"/><path d="M11,36 L16,44 L21,36 Z" fill="#FF8C00"/><path d="M13,36 L16,42 L19,36 Z" fill="#FFCC00"/><path d="M16,1 C21,2 24,9 24,14 L24,36 L8,36 L8,14 C8,9 11,2 16,1 Z" fill="url(#${gid})" stroke="#0A0A30" stroke-width="2"/><circle cx="16" cy="17" r="4" fill="#1A18A0" stroke="#0A0A30" stroke-width="1"/><circle cx="14.5" cy="15.8" r="1.4" fill="#5050E0" opacity="0.6"/><text x="16" y="34" text-anchor="middle" font-size="19" font-weight="900" fill="#000" stroke="#fff" stroke-width="2.5" paint-order="stroke" font-family="'Bebas Neue',Impact,sans-serif">${n}</text></svg>`; };
   const parts = [];
   if (r.credits) parts.push(coinSvg(r.credits));
   if (r.income)  parts.push(incomeSvg(r.income));
@@ -954,11 +1336,11 @@ function rewardIcons(r, size=12, chargeCount=0) {
   if (r.arrow === 'right') parts.push(`<span style="font-size:${Math.round(size*1.7)}px;font-weight:700;color:#3a8fd4;line-height:1;">→</span>`);
   if (r.special) {
     const specColor = isGreenAbility(r.special) ? 'var(--green)' : '#c9a43a';
-    parts.push(`<span style="font-size:${Math.max(6,fs-1)}px;color:${specColor};font-style:italic;line-height:1.2;text-align:center;word-break:break-word;">${r.special}</span>`);
+    parts.push(`<span style="font-size:${Math.max(6,Math.round(size*0.85))}px;color:${specColor};font-style:italic;line-height:1.2;text-align:center;word-break:break-word;">${r.special}</span>`);
   }
   if (r.chargeMax) {
     const count = chargeCount;
-    const cw = Math.round(fs*1.1);
+    const cw = Math.round(size*1.1);
     const cubes = Array(r.chargeMax).fill(null).map((_, i) => {
       const filled = i < count;
       const bg = filled ? '#f0c040' : 'transparent';
@@ -972,7 +1354,7 @@ function rewardIcons(r, size=12, chargeCount=0) {
 
 function applyReward(player, reward) {
   if (!reward) return;
-  if (reward.credits) player.credits = Math.min(20, player.credits + reward.credits);
+  if (reward.credits) player.credits = player.credits + reward.credits;
   if (reward.income)  player.income  = Math.min(10, player.income  + reward.income);
   if (reward.vp)      player.vp      = Math.min(60, player.vp      + reward.vp);
 }
@@ -1466,7 +1848,7 @@ function activateAbility(pi, sector, isDeployed, deployedIdx) {
   } else if (type === 'reroll') {
     G.dice = [Math.ceil(Math.random()*6), Math.ceil(Math.random()*6)];
     const cm = special.match(/\+(\d+)C/);
-    if (cm) G.players[pi].credits = Math.min(20, G.players[pi].credits + parseInt(cm[1]));
+    if (cm) G.players[pi].credits = G.players[pi].credits + parseInt(cm[1]);
     addLog(G.players[pi].name + ' rerolled — ' + G.dice[0] + ' + ' + G.dice[1] + ' = ' + (G.dice[0]+G.dice[1]));
     G.phase = 'choose-dice';
   } else if (type === 'add-die-1') {
@@ -1511,10 +1893,10 @@ function activateAbility(pi, sector, isDeployed, deployedIdx) {
     endGame(); return;
   } else if (type === 'roll-charge') {
     const earned = prevCount * 3;
-    G.players[pi].credits = Math.min(20, G.players[pi].credits + earned);
+    G.players[pi].credits = G.players[pi].credits + earned;
     addLog(G.players[pi].name + ' Roll=Charge: ' + prevCount + ' charges → +' + earned + 'C');
   } else if (type === 'credits-charged') {
-    G.players[pi].credits = Math.min(20, G.players[pi].credits + 20);
+    G.players[pi].credits = G.players[pi].credits + 20;
     addLog(G.players[pi].name + ' ability — +20C when charged');
   } else if (type === 'claim') {
     const queue = parseClaimQueue(special);
@@ -1583,7 +1965,7 @@ function skipGreenBonus() {
 
 function confirmSetTotal(val) {
   if (G.pendingAbility && G.pendingAbility.bonus) {
-    G.players[G.pendingAbility.pi].credits = Math.min(20, G.players[G.pendingAbility.pi].credits + G.pendingAbility.bonus);
+    G.players[G.pendingAbility.pi].credits = G.players[G.pendingAbility.pi].credits + G.pendingAbility.bonus;
   }
   G.nextRollTotal = val;
   addLog(G.players[G.pendingAbility.pi].name + ' pre-armed: next roll total → ' + val);
@@ -1641,7 +2023,7 @@ function confirmSetDie(value) {
     G.setDice[1] = value;
   }
   if (pa.creditPerDie > 0) {
-    G.players[pa.pi].credits = Math.min(20, G.players[pa.pi].credits + pa.creditPerDie);
+    G.players[pa.pi].credits = G.players[pa.pi].credits + pa.creditPerDie;
   }
   pa.diceLeft--;
   if (pa.diceLeft <= 0) G.pendingAbility = null;
@@ -1697,7 +2079,7 @@ function skipArrow(pi, sector) {
 }
 
 function addLog(msg) { G.log.unshift(msg); if (G.log.length > 20) G.log.pop(); }
-function resetGame() { if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; } show('setup-screen'); initSetup(); }
+function resetGame() { if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; } show('title-screen'); }
 
 // ─── AI ──────────────────────────────────────────────────────────────────────
 let aiTimer = null;
@@ -2053,25 +2435,25 @@ function renderMain() {
         html += '<p style="font-size:12px;margin-bottom:8px;">Pick any Level ' + claimLvl + ' card — it\'s yours for free:</p>';
         html += '<div class="shop-row" style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;">';
         claimCards.forEach(function(card) {
-          html += '<div class="shop-card" style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:2px solid #c9a43a;display:flex;flex-direction:column;">'
-            + '<div style="background:' + artBgs[claimLvl-1] + ';padding:6px 6px 4px;position:relative;flex:1;min-height:60px;display:flex;flex-direction:column;justify-content:flex-end;">'
+          html += '<div class="shop-card" style="min-width:108px;max-width:108px;flex-shrink:0;border-radius:12px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:2px solid #c9a43a;display:flex;flex-direction:column;">'
+            + '<div style="background:' + artBgs[claimLvl-1] + ';padding:7px 7px 5px;position:relative;flex:1;min-height:72px;display:flex;flex-direction:column;justify-content:flex-end;">'
             + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
-            + '<div style="position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.cost + '</div>'
-            + '<div style="position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
-            + '<div style="text-align:center;font-size:26px;margin-bottom:2px;">🚀</div>'
-            + '<div style="background:' + nameBarBgs[claimLvl-1] + ';margin:0 -6px -4px;padding:3px 5px;text-align:center;">'
-            + '<div style="font-size:8px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
-            + '<div style="font-size:7px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'') + '</div>'
+            + '<div style="position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;font-family:\'Bebas Neue\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 5px rgba(0,0,0,0.5);">' + card.cost + '</div>'
+            + '<div style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
+            + '<div style="text-align:center;font-size:31px;margin-bottom:2px;">🚀</div>'
+            + '<div style="background:' + nameBarBgs[claimLvl-1] + ';margin:0 -7px -5px;padding:4px 6px;text-align:center;">'
+            + '<div style="font-size:10px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
+            + '<div style="font-size:9px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'') + '</div>'
             + '</div></div>'
-            + '<div style="background:' + (card.station && isGreenAbility(card.station.special||'') ? '#1a3a1a' : '#1a3a5c') + ';padding:5px 6px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;height:50px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+            + '<div style="background:' + (card.station && isGreenAbility(card.station.special||'') ? '#1a3a1a' : '#1a3a5c') + ';padding:6px 7px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;height:60px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
             + rewardIcons(card.station, shopActiveIconSize(card.station))
             + '</div>'
-            + '<div style="background:' + (card.deployed && isGreenAbility(card.deployed.special||'') ? '#1a3a1a' : '#5c1a1a') + ';padding:3px 5px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;height:28px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+            + '<div style="background:' + (card.deployed && isGreenAbility(card.deployed.special||'') ? '#1a3a1a' : '#5c1a1a') + ';padding:4px 6px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;height:34px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
             + '<div style="transform:rotate(180deg);display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;width:100%;">'
             + rewardIcons(card.deployed, shopPassiveIconSize(card.deployed))
             + '</div></div>'
-            + '<div style="background:#0a0e1a;padding:4px 6px;">'
-            + '<button class="btn sm primary" onclick="claimCard(\'' + card.id + '\')" style="width:100%;padding:4px;font-size:11px;border-radius:4px;">Claim Free</button>'
+            + '<div style="background:#0a0e1a;padding:5px 7px;">'
+            + '<button class="btn sm primary" onclick="claimCard(\'' + card.id + '\')" style="width:100%;padding:5px;font-size:13px;border-radius:5px;">Claim Free</button>'
             + '</div></div>';
         });
         html += '</div>';
@@ -2201,28 +2583,28 @@ function renderMain() {
       const canBuy = isCurrent && G.phase === 'buy' && !purchased && cp.credits >= colony.cost;
       const showBtn = isCurrent && G.phase === 'buy' && !purchased;
       const alreadyOwned = cp.sectors[colony.sector] && cp.sectors[colony.sector].colonyLocked;
-      const colonyBuyBtn = showBtn ? '<button class="btn sm ' + (canBuy?'primary':'') + '" ' + (canBuy?'':'disabled') + ' onclick="buyColony(' + colony.sector + ')" style="width:100%;padding:4px;font-size:11px;border-radius:4px;">Buy</button>' : '';
-      html += '<div class="shop-card" style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;opacity:' + (purchased?'0.55':'1') + ';">'
+      const colonyBuyBtn = showBtn ? '<button class="btn sm ' + (canBuy?'primary':'') + '" ' + (canBuy?'':'disabled') + ' onclick="buyColony(' + colony.sector + ')" style="width:100%;padding:5px;font-size:13px;border-radius:5px;">Buy</button>' : '';
+      html += '<div class="shop-card" style="min-width:108px;max-width:108px;flex-shrink:0;border-radius:12px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;opacity:' + (purchased?'0.55':'1') + ';">'
         // Artwork area
-        + '<div style="background:linear-gradient(160deg,#1a0a28 0%,#2d1040 50%,#0d0818 100%);padding:6px 6px 4px;position:relative;flex:1;min-height:60px;display:flex;flex-direction:column;justify-content:flex-end;">'
+        + '<div style="background:linear-gradient(160deg,#1a0a28 0%,#2d1040 50%,#0d0818 100%);padding:7px 7px 5px;position:relative;flex:1;min-height:72px;display:flex;flex-direction:column;justify-content:flex-end;">'
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
         // Cost top-left
-        + '<div style="position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + colony.cost + '</div>'
+        + '<div style="position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;font-family:\'Bebas Neue\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 5px rgba(0,0,0,0.5);">' + colony.cost + '</div>'
         // Sector top-right
-        + '<div style="position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + colony.sector + '</div>'
-        + '<div style="text-align:center;font-size:26px;margin-bottom:2px;">🌍</div>'
-        + '<div style="background:#1a0a2d;margin:0 -6px -4px;padding:3px 5px;text-align:center;">'
-        + '<div style="font-size:8px;font-weight:700;color:#e0e0e0;">Colony Card</div>'
-        + '<div style="font-size:7px;color:#8877bb;">S' + colony.sector + ' · Locks sector</div>'
+        + '<div style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + colony.sector + '</div>'
+        + '<div style="text-align:center;font-size:31px;margin-bottom:2px;">🌍</div>'
+        + '<div style="background:#1a0a2d;margin:0 -7px -5px;padding:4px 6px;text-align:center;">'
+        + '<div style="font-size:10px;font-weight:700;color:#e0e0e0;">Colony Card</div>'
+        + '<div style="font-size:9px;color:#8877bb;">S' + colony.sector + ' · Locks sector</div>'
         + '</div>'
         + '</div>'
         // VP reward — purple (same height as station reward)
-        + '<div style="background:#2d1a4a;padding:5px 6px;display:flex;align-items:center;justify-content:center;gap:3px;min-height:50px;border-top:1px solid rgba(255,255,255,0.08);">'
-        + rewardIcons({vp:colony.vp}, 13)
+        + '<div style="background:#2d1a4a;padding:6px 7px;display:flex;align-items:center;justify-content:center;gap:3px;min-height:60px;border-top:1px solid rgba(255,255,255,0.08);">'
+        + rewardIcons({vp:colony.vp}, 16)
         + '</div>'
         // Owned/buy
-        + '<div style="background:#0a0e1a;padding:4px 6px;">'
-        + (purchased ? '<div style="font-size:8px;color:var(--text2);text-align:center;">Owned by ' + purchased + '</div>' : colonyBuyBtn)
+        + '<div style="background:#0a0e1a;padding:5px 7px;">'
+        + (purchased ? '<div style="font-size:10px;color:var(--text2);text-align:center;">Owned by ' + purchased + '</div>' : colonyBuyBtn)
         + '</div>'
         + '</div>';
     });
@@ -2248,39 +2630,39 @@ function renderMain() {
                      'linear-gradient(160deg,#0d1a0d 0%,#1a3d1a 50%,#0a1a0a 100%)',
                      'linear-gradient(160deg,#1a0a28 0%,#3d1a5c 50%,#1a0d3c 100%)'][lvl-1];
       const nameBarBg = ['#0a1a3a','#0a1a0a','#1a0a2d'][lvl-1];
-      const shipBuyBtn = showBtn ? (sectorLocked ? '<div style="font-size:9px;color:#8877bb;text-align:center;padding:3px 0;">Colony locked</div>' : filterBlocked ? '<div style="font-size:9px;color:#888;text-align:center;padding:3px 0;">Out of range</div>' : '<button class="btn sm ' + (canBuy ? 'primary' : '') + '" ' + (canBuy ? '' : 'disabled') + ' onclick="buyCard(\'' + card.id + '\')" style="width:100%;padding:4px;font-size:11px;margin-top:4px;border-radius:4px;">Buy</button>') : '';
-      html += '<div class="shop-card" style="min-width:90px;max-width:90px;flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;">'
+      const shipBuyBtn = showBtn ? (sectorLocked ? '<div style="font-size:11px;color:#8877bb;text-align:center;padding:4px 0;">Colony locked</div>' : filterBlocked ? '<div style="font-size:11px;color:#888;text-align:center;padding:4px 0;">Out of range</div>' : '<button class="btn sm ' + (canBuy ? 'primary' : '') + '" ' + (canBuy ? '' : 'disabled') + ' onclick="buyCard(\'' + card.id + '\')" style="width:100%;padding:5px;font-size:13px;margin-top:5px;border-radius:5px;">Buy</button>') : '';
+      html += '<div class="shop-card" style="min-width:108px;max-width:108px;flex-shrink:0;border-radius:12px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;">'
 
         // Artwork area
-        + '<div style="background:' + artBg + ';padding:6px 6px 4px;position:relative;flex:1;min-height:60px;display:flex;flex-direction:column;justify-content:flex-end;">'
+        + '<div style="background:' + artBg + ';padding:7px 7px 5px;position:relative;flex:1;min-height:72px;display:flex;flex-direction:column;justify-content:flex-end;">'
         // Stars decoration
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
         // Cost circle top-left
-        + '<div style="position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:#c9933a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.cost + '</div>'
+        + '<div style="position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;font-family:\'Bebas Neue\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 5px rgba(0,0,0,0.5);">' + card.cost + '</div>'
         // Sector circle top-right
-        + '<div style="position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
+        + '<div style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
         // Ship emoji as artwork placeholder
-        + '<div style="text-align:center;font-size:26px;margin-bottom:2px;">🚀</div>'
+        + '<div style="text-align:center;font-size:31px;margin-bottom:2px;">🚀</div>'
         // Name bar
-        + '<div style="background:' + nameBarBg + ';margin:0 -6px -4px;padding:3px 5px;text-align:center;">'
-        + '<div style="font-size:8px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
-        + '<div style="font-size:7px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'') + '</div>'
+        + '<div style="background:' + nameBarBg + ';margin:0 -7px -5px;padding:4px 6px;text-align:center;">'
+        + '<div style="font-size:10px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
+        + '<div style="font-size:9px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'') + '</div>'
         + '</div>'
         + '</div>'
 
         // Station reward — blue or green for green abilities (active, fixed height)
-        + '<div style="background:' + (card.station && isGreenAbility(card.station.special || '') ? '#1a3a1a' : '#1a3a5c') + ';padding:5px 6px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;height:50px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+        + '<div style="background:' + (card.station && isGreenAbility(card.station.special || '') ? '#1a3a1a' : '#1a3a5c') + ';padding:6px 7px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;height:60px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
         + rewardIcons(card.station, shopActiveIconSize(card.station))
         + '</div>'
 
         // Deployed reward — upside down, passive (fixed height, scales to fit)
-        + '<div style="background:' + (card.deployed && isGreenAbility(card.deployed.special || '') ? '#1a3a1a' : '#5c1a1a') + ';padding:3px 5px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;height:28px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+        + '<div style="background:' + (card.deployed && isGreenAbility(card.deployed.special || '') ? '#1a3a1a' : '#5c1a1a') + ';padding:4px 6px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;height:34px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
         + '<div style="transform:rotate(180deg);display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;width:100%;">'
         + rewardIcons(card.deployed, shopPassiveIconSize(card.deployed))
         + '</div></div>'
 
         // Buy button
-        + (showBtn ? '<div style="background:#0a0e1a;padding:4px 6px;">' + shipBuyBtn + '</div>' : '')
+        + (showBtn ? '<div style="background:#0a0e1a;padding:5px 7px;">' + shipBuyBtn + '</div>' : '')
         + '</div>';
     });
     html += '</div></div>';
@@ -2304,17 +2686,17 @@ function renderMain() {
   // Left 1/4: compact stats
   html += '<div class="sector-stats-panel" style="flex:0 0 68px;display:flex;flex-direction:column;gap:6px;padding-top:2px;height:252px;">';
   html += '<div style="background:var(--surface2);border-radius:8px;padding:7px 4px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
-    + '<svg width="20" height="20" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#BA7517" opacity="0.2"/><circle cx="16" cy="16" r="10" fill="#BA7517" opacity="0.5"/><circle cx="16" cy="16" r="7" fill="#BA7517"/><text x="16" y="20" text-anchor="middle" font-size="9" font-weight="700" fill="#FAEEDA" font-family="sans-serif">C</text></svg>'
+    + '<svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="csg" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#F0B000"/><stop offset="50%" stop-color="#CC8800"/><stop offset="100%" stop-color="#7A4800"/></radialGradient></defs><circle cx="16" cy="16" r="15" fill="url(#csg)"/><circle cx="16" cy="16" r="15" fill="none" stroke="rgba(255,210,60,0.3)" stroke-width="2.5"/><text x="16" y="21" text-anchor="middle" font-size="13" font-weight="900" fill="#000" stroke="#fff" stroke-width="2.5" paint-order="stroke" font-family="\'Bebas Neue\',Impact,sans-serif">C</text></svg>'
     + '<div style="font-size:15px;font-weight:700;color:var(--gold);line-height:1.1;">' + vp.credits + '</div>'
     + '<div style="font-size:8px;color:var(--text2);text-transform:uppercase;letter-spacing:0.3px;">Credits</div>'
     + '</div>';
   html += '<div style="background:var(--surface2);border-radius:8px;padding:7px 4px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
-    + '<svg width="20" height="20" viewBox="0 0 32 32"><polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="#3B6D11" opacity="0.25"/><polygon points="16,6 23,10 23,22 16,26 9,22 9,10" fill="#3B6D11"/><polyline points="16,22 16,12" stroke="#C0DD97" stroke-width="2.5" stroke-linecap="round"/><polyline points="12,16 16,12 20,16" stroke="#C0DD97" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>'
+    + '<svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="isg" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#60EF28"/><stop offset="48%" stop-color="#20BB00"/><stop offset="100%" stop-color="#086000"/></radialGradient></defs><polygon points="16,0.5 27.5,7.2 27.5,24.8 16,31.5 4.5,24.8 4.5,7.2" fill="#053D00"/><polygon points="16,2.5 25.5,8.4 25.5,23.6 16,29.5 6.5,23.6 6.5,8.4" fill="url(#isg)"/><ellipse cx="16" cy="17" rx="12" ry="3" transform="rotate(-35,16,16)" fill="none" stroke="#88FF44" stroke-width="2" opacity="0.85"/></svg>'
     + '<div style="font-size:15px;font-weight:700;color:var(--green);line-height:1.1;">' + vp.income + '</div>'
     + '<div style="font-size:8px;color:var(--text2);text-transform:uppercase;letter-spacing:0.3px;">Income</div>'
     + '</div>';
   html += '<div style="background:var(--surface2);border-radius:8px;padding:7px 4px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
-    + '<svg width="20" height="20" viewBox="0 0 32 32"><path d="M16 2 C16 2 24 8 24 18 L20 22 L12 22 L8 18 C8 8 16 2 16 2Z" fill="#7F77DD"/><circle cx="16" cy="17" r="4" fill="#534AB7"/><circle cx="16" cy="17" r="2" fill="#EEEDFE"/><path d="M8 18 L4 25 L11 22Z" fill="#534AB7" opacity="0.8"/><path d="M24 18 L28 25 L21 22Z" fill="#534AB7" opacity="0.8"/><path d="M12 22 L13 30 L16 26 L19 30 L20 22Z" fill="#7F77DD" opacity="0.9"/></svg>'
+    + '<svg width="16" height="20" viewBox="0 0 32 44" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rsg" x1="25%" y1="0%" x2="75%" y2="100%"><stop offset="0%" stop-color="#D8DCF0"/><stop offset="50%" stop-color="#A8AECA"/><stop offset="100%" stop-color="#787E98"/></linearGradient></defs><polygon points="4,27 0,42 10,37" fill="#1A187A"/><polygon points="28,27 32,42 22,37" fill="#1A187A"/><path d="M16,2 C25,2 28,15 28,26 L24,37 L8,37 L4,26 C4,15 7,2 16,2 Z" fill="url(#rsg)" stroke="#0A0A30" stroke-width="1.5"/><circle cx="16" cy="11" r="4.5" fill="#1A18A0" stroke="#0A0A30" stroke-width="1"/><circle cx="14.5" cy="9.5" r="1.5" fill="#6666EE" opacity="0.7"/><path d="M11,38 L9,44 L13,41 L16,44 L19,41 L23,44 L21,38 Z" fill="#FF8C00"/><path d="M13,38.5 L12,43 L16,40.5 L20,43 L19,38.5 Z" fill="#FFCC00"/></svg>'
     + '<div style="font-size:15px;font-weight:700;color:var(--purple);line-height:1.1;">' + vp.vp + '<span style="font-size:8px;font-weight:400;color:var(--text2);">/40</span></div>'
     + '<div style="font-size:8px;color:var(--text2);text-transform:uppercase;letter-spacing:0.3px;">VP</div>'
     + '</div>';
@@ -2397,30 +2779,35 @@ function renderMain() {
 // ─── AUDIO ───────────────────────────────────────────────────────────────────
 const bgAudio = new Audio('./3.mp3');
 bgAudio.loop = true;
-bgAudio.volume = 0.4;
+bgAudio.volume = (parseInt(localStorage.getItem('sb_musicVol') ?? '40')) / 100;
 let musicPlaying = false;
 
+function updateMusicToggleLabel() {
+  const icon  = document.getElementById('ingame-music-icon');
+  const label = document.getElementById('ingame-music-label');
+  if (icon)  icon.textContent  = musicPlaying ? '🔊' : '🔇';
+  if (label) label.textContent = musicPlaying ? 'Music: On' : 'Music: Off';
+}
+
 function toggleMusic() {
-  const btn = document.getElementById('music-btn');
   if (musicPlaying) {
     bgAudio.pause();
     musicPlaying = false;
-    if (btn) btn.textContent = '🔇';
+    updateMusicToggleLabel();
   } else {
     bgAudio.currentTime = bgAudio.currentTime || 0;
     const playPromise = bgAudio.play();
     if (playPromise !== undefined) {
       playPromise.then(() => {
         musicPlaying = true;
-        if (btn) btn.textContent = '🔊';
-      }).catch((e) => {
-        // Try resuming AudioContext if suspended
+        updateMusicToggleLabel();
+      }).catch(() => {
         if (window.AudioContext || window.webkitAudioContext) {
           const ac = new (window.AudioContext || window.webkitAudioContext)();
           ac.resume().then(() => {
             bgAudio.play().then(() => {
               musicPlaying = true;
-              if (btn) btn.textContent = '🔊';
+              updateMusicToggleLabel();
             }).catch(() => {});
           });
         }
@@ -2429,8 +2816,36 @@ function toggleMusic() {
   }
 }
 
+function openIngameSettings() {
+  const backdrop = document.getElementById('ingame-settings-backdrop');
+  const panel    = document.getElementById('ingame-settings-panel');
+  updateMusicToggleLabel();
+  backdrop.style.display = 'block';
+  panel.style.display    = 'block';
+  requestAnimationFrame(() => { panel.style.transform = 'translateY(0)'; });
+}
+
+function closeIngameSettings() {
+  const panel = document.getElementById('ingame-settings-panel');
+  panel.style.transform = 'translateY(100%)';
+  setTimeout(() => {
+    panel.style.display = 'none';
+    document.getElementById('ingame-settings-backdrop').style.display = 'none';
+  }, 230);
+}
+
+function goToMainMenu() {
+  closeIngameSettings();
+  setTimeout(() => { show('title-screen'); }, 230);
+}
+
+function confirmResetGame() {
+  closeIngameSettings();
+  setTimeout(() => { resetGame(); }, 230);
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-initSetup();
+// (title screen shown on load; initSetup() called when Play Game is tapped)
 
 // Register service worker for offline support
 if ('serviceWorker' in navigator) {
@@ -2484,7 +2899,7 @@ window.addEventListener('orientationchange', () => setTimeout(setMobileZoom, 150
     if (peekEl) { peekEl.classList.remove('peek'); peekEl = null; }
   }
   document.addEventListener('touchstart', function(e) {
-    const card = e.target.closest('.sector-wrapper, .shop-card');
+    const card = e.target.closest('.shop-card');
     clearPeek();
     if (!card) return;
     peekTimer = setTimeout(function() {
