@@ -15,7 +15,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <title>Space Base</title>
 
   <style>
@@ -48,6 +48,8 @@
       background: var(--bg);
       color: var(--text);
       font-size: 15px;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
 
     #app {
@@ -169,6 +171,20 @@
       align-items: center;
     }
 
+    /* Pinned action pane */
+    #action-pane {
+      flex-shrink: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      max-height: 50vh;
+      padding: 8px 12px 0;
+      background: var(--bg);
+    }
+    #action-pane.has-content {
+      border-bottom: 0.5px solid var(--border);
+      padding-bottom: 8px;
+    }
+
     /* Sector grid */
     .sectors-grid {
       display: flex;
@@ -223,22 +239,22 @@
     .sector .sec-cost {
       position: absolute;
       top: 8px; left: 8px;
-      width: 28px; height: 28px;
+      width: 44px; height: 44px;
       border-radius: 50%;
       background: radial-gradient(circle at 38% 32%, #F0B000 0%, #CC8800 50%, #7A4800 100%);
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 900; font-family: 'Bebas Neue', Impact, sans-serif; color: #000;
+      font-size: 26px; line-height: 1; font-weight: 900; font-family: 'Orbitron', Impact, sans-serif; color: #000;
       text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
-      box-shadow: inset 0 0 0 2px rgba(255,210,60,0.3), 0 2px 5px rgba(0,0,0,0.5);
+      box-shadow: inset 0 0 0 2px rgba(255,210,60,0.3), 0 2px 6px rgba(0,0,0,0.5);
     }
     .sector .sec-num {
       position: absolute;
       top: 8px; right: 8px;
-      width: 28px; height: 28px;
+      width: 44px; height: 44px;
       border-radius: 50%;
       background: #555;
       display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 800; color: #ddd;
+      font-size: 26px; line-height: 1; font-weight: 800; color: #ddd; font-family: 'Orbitron', sans-serif;
       box-shadow: 0 1px 4px rgba(0,0,0,0.5);
     }
     .sector .sec-ship-icon {
@@ -260,7 +276,7 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .sector .sec-station {
-      background: #1a3a5c;
+      background: url('Blue_Card.png') center/cover no-repeat;
       padding: 6px 8px;
       display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
       gap: 4px; height: 90px; overflow: hidden;
@@ -268,7 +284,7 @@
       flex-shrink: 0;
     }
     .sec-passive-row {
-      background: #5c1a1a;
+      background: url('Red_Card2.png') center/cover no-repeat;
       padding: 5px 8px;
       display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
       gap: 4px; height: 50px; overflow: hidden;
@@ -710,6 +726,15 @@
         </div>
         <div class="setting-row">
           <div>
+            <div class="setting-label">🎶 Song</div>
+          </div>
+          <select id="song-select" onchange="onSongChange(this.value)" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;">
+            <option value="3.mp3">Track 1</option>
+            <option value="Yoohoo.mp3">Yoohoo</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div>
             <div class="setting-label">🔔 SFX Volume</div>
             <div class="setting-sub">Coming soon</div>
           </div>
@@ -835,6 +860,7 @@
       <div id="viewer-label" style="font-size:13px;font-weight:500;color:var(--text);flex:1;"></div>
       <button onclick="openIngameSettings()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;line-height:1;" title="Game menu">⚙️</button>
     </div>
+    <div id="action-pane"></div>
     <div class="scroll-area safe-bottom" id="main-content"></div>
   </div>
 
@@ -862,6 +888,10 @@
       <button id="ingame-music-btn" onclick="toggleMusic()" class="ingame-menu-btn">
         <span id="ingame-music-icon">🔇</span>
         <span id="ingame-music-label">Music: Off</span>
+      </button>
+      <button id="ingame-song-btn" onclick="cycleIngameSong()" class="ingame-menu-btn">
+        <span>🎶</span>
+        <span id="ingame-song-label">Song: Track 1</span>
       </button>
       <button onclick="goToMainMenu()" class="ingame-menu-btn">
         <span>🏠</span><span>Main Menu</span>
@@ -1061,22 +1091,50 @@ function shuffle(arr) {
 }
 
 // ─── PROFILE & SETTINGS ──────────────────────────────────────────────────────
-let musicVol = parseInt(localStorage.getItem('sb_musicVol') ?? '40');
-let sfxVol   = parseInt(localStorage.getItem('sb_sfxVol')   ?? '70');
+let musicVol    = parseInt(localStorage.getItem('sb_musicVol') ?? '40');
+let sfxVol      = parseInt(localStorage.getItem('sb_sfxVol')   ?? '70');
+let currentSong = localStorage.getItem('sb_song') ?? '3.mp3';
+
+const SONGS = [
+  { file: '3.mp3',       label: 'Track 1' },
+  { file: 'Yoohoo.mp3',  label: 'Yoohoo'  },
+];
 
 function loadSettingsScreen() {
   const ms = document.getElementById('music-vol-slider');
   const mv = document.getElementById('music-vol-val');
   const ss = document.getElementById('sfx-vol-slider');
   const sv = document.getElementById('sfx-vol-val');
+  const sg = document.getElementById('song-select');
   if (ms) { ms.value = musicVol; mv.textContent = musicVol; }
   if (ss) { ss.value = sfxVol;   sv.textContent = sfxVol; }
+  if (sg) { sg.value = currentSong; }
 }
 function onMusicVol(v) {
   musicVol = parseInt(v);
   document.getElementById('music-vol-val').textContent = musicVol;
   bgAudio.volume = musicVol / 100;
   localStorage.setItem('sb_musicVol', musicVol);
+}
+function onSongChange(file) {
+  const wasPlaying = musicPlaying;
+  if (wasPlaying) { bgAudio.pause(); musicPlaying = false; }
+  currentSong = file;
+  localStorage.setItem('sb_song', file);
+  bgAudio.src = './' + file;
+  bgAudio.load();
+  if (wasPlaying) {
+    bgAudio.play().then(() => { musicPlaying = true; updateMusicToggleLabel(); }).catch(() => {});
+  }
+  const lbl = document.getElementById('ingame-song-label');
+  if (lbl) lbl.textContent = 'Song: ' + (SONGS.find(s => s.file === file)?.label ?? file);
+}
+function cycleIngameSong() {
+  const idx = SONGS.findIndex(s => s.file === currentSong);
+  const next = SONGS[(idx + 1) % SONGS.length];
+  onSongChange(next.file);
+  const sg = document.getElementById('song-select');
+  if (sg) sg.value = next.file;
 }
 function onSfxVol(v) {
   sfxVol = parseInt(v);
@@ -1166,33 +1224,32 @@ function renderReveal() {
   const el = document.getElementById('reveal-content');
 
   // Build card matching shop card format, scaled up for reveal screen
-  const revealStaBg = card.station && isGreenAbility(card.station.special || '') ? '#1a3a1a' : '#1a3a5c';
-  const revealDepBg = card.deployed && isGreenAbility(card.deployed.special || '') ? '#1a3a1a' : '#5c1a1a';
+  const revealStaBg = card.station && isGreenAbility(card.station.special || '') ? 'url(Green_Card.png) center/cover no-repeat' : 'url(Blue_Card.png) center/cover no-repeat';
+  const revealDepBg = card.deployed && isGreenAbility(card.deployed.special || '') ? 'url(Green_Card_Passive.png) center/cover no-repeat' : 'url(Red_Card2.png) center/cover no-repeat';
+  const revealTheme = getClassTheme(card.type, card.level);
   const cardHtml =
-    '<div style="width:150px;border-radius:12px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);display:flex;flex-direction:column;margin:0 auto 16px;">'
+    '<div style="width:150px;border-radius:12px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,0.75);border:1.5px solid ' + revealTheme.border + ';display:flex;flex-direction:column;margin:0 auto 16px;">'
     // Art area
-    + '<div style="background:linear-gradient(160deg,#0a1628 0%,#1a2a5c 50%,#0d1f3c 100%);padding:10px 10px 6px;position:relative;min-height:100px;display:flex;flex-direction:column;justify-content:flex-end;">'
-    + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:14px 14px;opacity:0.15;pointer-events:none;"></div>'
+    + '<div style="background:' + revealTheme.gradient + ';padding:10px 10px 0;position:relative;min-height:108px;display:flex;flex-direction:column;justify-content:flex-end;">'
+    + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.9) 1px,transparent 1px);background-size:13px 13px;opacity:0.1;pointer-events:none;"></div>'
     // Cost circle top-left
-    + '<div style="position:absolute;top:8px;left:8px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;font-family:\'Bebas Neue\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 5px rgba(0,0,0,0.5);">' + card.cost + '</div>'
+    + '<div style="position:absolute;top:6px;left:6px;width:39px;height:39px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;font-weight:900;font-family:\'Orbitron\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 6px rgba(0,0,0,0.5);">' + card.cost + '</div>'
     // Sector circle top-right
-    + '<div style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
-    // Ship emoji
-    + '<div style="text-align:center;font-size:36px;margin-bottom:4px;">🚀</div>'
+    + '<div style="position:absolute;top:6px;right:6px;width:39px;height:39px;border-radius:50%;background:#222;border:2px solid ' + revealTheme.accent + ';display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;font-weight:800;font-family:\'Orbitron\',sans-serif;color:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.7);">' + card.sector + '</div>'
     // Name bar
-    + '<div style="background:#0a1a3a;margin:0 -10px -6px;padding:4px 8px;text-align:center;">'
-    + '<div style="font-size:9px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
-    + '<div style="font-size:8px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'') + '</div>'
+    + '<div style="background:' + revealTheme.nameBg + ';margin:0 -10px;padding:5px 10px;text-align:center;border-top:1px solid ' + revealTheme.border + ';">'
+    + '<div style="font-size:10px;font-weight:700;color:#e8e8e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
+    + '<div style="font-size:9px;color:' + revealTheme.accent + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">' + (card.type||'') + '</div>'
     + '</div>'
     + '</div>'
     // Station reward — blue/green, fixed height like shop
     + '<div style="background:' + revealStaBg + ';padding:8px 10px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;min-height:60px;border-top:1px solid rgba(255,255,255,0.08);">'
-    + rewardIcons(card.station, shopActiveIconSize(card.station))
+    + rewardIcons(card.station, shopActiveIconSize(card.station), 0, 1.5)
     + '</div>'
     // Deployed reward — red/green, upside down like shop
     + '<div style="background:' + revealDepBg + ';padding:5px 8px;display:flex;align-items:center;justify-content:center;min-height:38px;border-top:1px solid rgba(255,255,255,0.08);">'
     + '<div style="transform:rotate(180deg);display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:3px;width:100%;">'
-    + rewardIcons(card.deployed, shopPassiveIconSize(card.deployed))
+    + rewardIcons(card.deployed, shopPassiveIconSize(card.deployed), 0, 1, 0.75)
     + '</div></div>'
     + '</div>';
 
@@ -1256,7 +1313,8 @@ function confirmStartCard() {
 // ─── GAME LOGIC ──────────────────────────────────────────────────────────────
 function rewardItemCount(r) {
   if (!r) return 0;
-  return [r.credits, r.income, r.vp, r.arrow, r.special, r.chargeMax].filter(Boolean).length;
+  const arrowCount = r.arrow === 'both' ? 2 : (r.arrow ? 1 : 0);
+  return [r.credits, r.income, r.vp, r.special, r.chargeMax].filter(Boolean).length + arrowCount;
 }
 function shopPassiveIconSize(r) {
   if (!r) return 14;
@@ -1320,23 +1378,30 @@ function rewardStr(r) {
   return p.join(' ') || '—';
 }
 
+function getClassTheme(type, level) {
+  const space = "url('./red_space_upsplash.jpg') center/cover no-repeat";
+  const spaceNameBg = '#030a1a';
+  const accent = level === 2 ? '#B2C135' : level === 3 ? '#B22283' : '#2CB594';
+  const border = level === 2 ? 'rgba(178,193,53,0.85)' : level === 3 ? 'rgba(178,34,131,0.85)' : 'rgba(44,181,148,0.85)';
+  return { gradient:space, nameBg:spaceNameBg, border, accent };
+}
+
 let _iconUid = 0;
-function rewardIcons(r, size=12, chargeCount=0) {
+function rewardIcons(r, size=12, chargeCount=0, arrowScale=1, vpScale=1) {
   if (!r) return '';
   const fs = Math.round(size * 1.4);
-  const coinSvg = (n) => `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size*1.8}px;height:${size*1.8}px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);box-shadow:inset 0 0 0 ${Math.max(1,Math.round(size*0.1))}px rgba(255,210,60,0.3),0 2px 5px rgba(0,0,0,0.5);flex-shrink:0;"><span style="font-size:${fs}px;font-weight:900;font-family:\'Bebas Neue\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;line-height:1;">${n}</span></span>`;
-  const incomeSvg = (n) => { const gid='ig'+(++_iconUid); const d=size*1.8; return `<svg width="${d}" height="${d}" viewBox="0 0 32 32" style="flex-shrink:0;"><defs><radialGradient id="${gid}" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#60EF28"/><stop offset="48%" stop-color="#20BB00"/><stop offset="100%" stop-color="#086000"/></radialGradient></defs><polygon points="16,0.5 27.5,7.2 27.5,24.8 16,31.5 4.5,24.8 4.5,7.2" fill="#053D00"/><polygon points="16,2.5 25.5,8.4 25.5,23.6 16,29.5 6.5,23.6 6.5,8.4" fill="url(#${gid})"/><ellipse cx="16" cy="17" rx="13" ry="3.5" transform="rotate(-35,16,16)" fill="none" stroke="#88FF44" stroke-width="2.2" opacity="0.85"/><text x="16" y="25" text-anchor="middle" font-size="25" font-weight="900" fill="#000" stroke="#fff" stroke-width="2.5" paint-order="stroke" font-family="\'Bebas Neue\',Impact,sans-serif">${n}</text></svg>`; };
-  const vpSvg = (n) => { const gid='rg'+(++_iconUid); const w=size*1.7; const h=size*2.1; return `<svg width="${w}" height="${h}" viewBox="0 0 32 44" style="flex-shrink:0;"><defs><linearGradient id="${gid}" x1="25%" y1="0%" x2="75%" y2="100%"><stop offset="0%" stop-color="#C8CDE4"/><stop offset="50%" stop-color="#9CA2C0"/><stop offset="100%" stop-color="#6A7090"/></linearGradient></defs><polygon points="8,24 1,40 8,36" fill="#12106B"/><polygon points="24,24 31,40 24,36" fill="#12106B"/><path d="M11,36 L16,44 L21,36 Z" fill="#FF8C00"/><path d="M13,36 L16,42 L19,36 Z" fill="#FFCC00"/><path d="M16,1 C21,2 24,9 24,14 L24,36 L8,36 L8,14 C8,9 11,2 16,1 Z" fill="url(#${gid})" stroke="#0A0A30" stroke-width="2"/><circle cx="16" cy="17" r="4" fill="#1A18A0" stroke="#0A0A30" stroke-width="1"/><circle cx="14.5" cy="15.8" r="1.4" fill="#5050E0" opacity="0.6"/><text x="16" y="34" text-anchor="middle" font-size="19" font-weight="900" fill="#000" stroke="#fff" stroke-width="2.5" paint-order="stroke" font-family="'Bebas Neue',Impact,sans-serif">${n}</text></svg>`; };
+  const coinSvg = (n) => `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size*1.8}px;height:${size*1.8}px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);box-shadow:inset 0 0 0 ${Math.max(1,Math.round(size*0.1))}px rgba(255,210,60,0.3),0 2px 5px rgba(0,0,0,0.5);flex-shrink:0;"><span style="font-size:${fs}px;font-weight:900;font-family:\'Orbitron\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;line-height:1;${n===1?'transform:translateX(-2px);':''}">${n}</span></span>`;
+  const incomeSvg = (n) => { const gid='ig'+(++_iconUid); const d=size*1.8; return `<svg width="${d}" height="${d}" viewBox="0 0 32 32" style="flex-shrink:0;"><defs><radialGradient id="${gid}" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#60EF28"/><stop offset="48%" stop-color="#20BB00"/><stop offset="100%" stop-color="#086000"/></radialGradient></defs><polygon points="16,0.5 27.5,7.2 27.5,24.8 16,31.5 4.5,24.8 4.5,7.2" fill="#053D00"/><polygon points="16,2.5 25.5,8.4 25.5,23.6 16,29.5 6.5,23.6 6.5,8.4" fill="url(#${gid})"/><ellipse cx="16" cy="17" rx="13" ry="3.5" transform="rotate(-35,16,16)" fill="none" stroke="#88FF44" stroke-width="2.2" opacity="0.85"/><text x="${n===1?'14':'16'}" y="25" text-anchor="middle" font-size="25" font-weight="900" fill="#000" stroke="#fff" stroke-width="2.5" paint-order="stroke" font-family="\'Orbitron\',Impact,sans-serif">${n}</text></svg>`; };
+  const vpSvg = (n) => { const d=size*1.8*vpScale; return `<span style="display:inline-flex;align-items:center;justify-content:center;width:${d}px;height:${d}px;position:relative;flex-shrink:0;"><img src="./ppt_rocket3.png" style="width:${d*1.794}px;height:${d*1.794}px;object-fit:contain;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"/><span style="position:relative;font-size:${fs}px;font-weight:900;font-family:\'Orbitron\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;line-height:1;${n===1?'transform:translateX(-2px);':''}">${n}</span></span>`; };
   const parts = [];
   if (r.credits) parts.push(coinSvg(r.credits));
   if (r.income)  parts.push(incomeSvg(r.income));
   if (r.vp)      parts.push(vpSvg(r.vp));
-  if (r.arrow === 'both')  parts.push(`<span style="font-size:${Math.round(size*1.7)}px;font-weight:700;color:#3a8fd4;line-height:1;">←→</span>`);
-  if (r.arrow === 'left')  parts.push(`<span style="font-size:${Math.round(size*1.7)}px;font-weight:700;color:#3a8fd4;line-height:1;">←</span>`);
-  if (r.arrow === 'right') parts.push(`<span style="font-size:${Math.round(size*1.7)}px;font-weight:700;color:#3a8fd4;line-height:1;">→</span>`);
+  if (r.arrow === 'both')  parts.push(`<img src="arrow.png" style="width:${Math.round(size*1.8*arrowScale)}px;height:${Math.round(size*1.8*arrowScale)}px;object-fit:contain;transform:scaleX(-1);flex-shrink:0;"><img src="arrow.png" style="width:${Math.round(size*1.8*arrowScale)}px;height:${Math.round(size*1.8*arrowScale)}px;object-fit:contain;flex-shrink:0;">`);
+  if (r.arrow === 'left')  parts.push(`<img src="arrow.png" style="width:${Math.round(size*1.8*arrowScale)}px;height:${Math.round(size*1.8*arrowScale)}px;object-fit:contain;transform:scaleX(-1);flex-shrink:0;">`);
+  if (r.arrow === 'right') parts.push(`<img src="arrow.png" style="width:${Math.round(size*1.8*arrowScale)}px;height:${Math.round(size*1.8*arrowScale)}px;object-fit:contain;flex-shrink:0;">`);
   if (r.special) {
-    const specColor = isGreenAbility(r.special) ? 'var(--green)' : '#c9a43a';
-    parts.push(`<span style="font-size:${Math.max(6,Math.round(size*0.85))}px;color:${specColor};font-style:italic;line-height:1.2;text-align:center;word-break:break-word;">${r.special}</span>`);
+    parts.push(`<span style="font-size:${Math.max(6,Math.round(size*0.85))}px;color:#000;font-family:'Orbitron',Impact,sans-serif;line-height:1.2;text-align:center;word-break:break-word;">${r.special}</span>`);
   }
   if (r.chargeMax) {
     const count = chargeCount;
@@ -2438,19 +2503,18 @@ function renderMain() {
           html += '<div class="shop-card" style="min-width:108px;max-width:108px;flex-shrink:0;border-radius:12px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:2px solid #c9a43a;display:flex;flex-direction:column;">'
             + '<div style="background:' + artBgs[claimLvl-1] + ';padding:7px 7px 5px;position:relative;flex:1;min-height:72px;display:flex;flex-direction:column;justify-content:flex-end;">'
             + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
-            + '<div style="position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;font-family:\'Bebas Neue\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 5px rgba(0,0,0,0.5);">' + card.cost + '</div>'
-            + '<div style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
-            + '<div style="text-align:center;font-size:31px;margin-bottom:2px;">🚀</div>'
+            + '<div style="position:absolute;top:5px;left:5px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;font-weight:900;font-family:\'Orbitron\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 6px rgba(0,0,0,0.5);">' + card.cost + '</div>'
+            + '<div style="position:absolute;top:5px;right:5px;width:34px;height:34px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
             + '<div style="background:' + nameBarBgs[claimLvl-1] + ';margin:0 -7px -5px;padding:4px 6px;text-align:center;">'
             + '<div style="font-size:10px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
             + '<div style="font-size:9px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'') + '</div>'
             + '</div></div>'
-            + '<div style="background:' + (card.station && isGreenAbility(card.station.special||'') ? '#1a3a1a' : '#1a3a5c') + ';padding:6px 7px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;height:60px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
-            + rewardIcons(card.station, shopActiveIconSize(card.station))
+            + '<div style="background:' + (card.station && isGreenAbility(card.station.special||'') ? 'url(Green_Card.png) center/cover no-repeat' : 'url(Blue_Card.png) center/cover no-repeat') + ';padding:6px 7px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;height:60px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+            + rewardIcons(card.station, shopActiveIconSize(card.station), 0, 1.5)
             + '</div>'
-            + '<div style="background:' + (card.deployed && isGreenAbility(card.deployed.special||'') ? '#1a3a1a' : '#5c1a1a') + ';padding:4px 6px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;height:34px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+            + '<div style="background:' + (card.deployed && isGreenAbility(card.deployed.special||'') ? 'url(Green_Card_Passive.png) center/cover no-repeat' : 'url(Red_Card2.png) center/cover no-repeat') + ';padding:4px 6px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;height:34px;overflow:hidden;flex-shrink:0;">'
             + '<div style="transform:rotate(180deg);display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;width:100%;">'
-            + rewardIcons(card.deployed, shopPassiveIconSize(card.deployed))
+            + rewardIcons(card.deployed, shopPassiveIconSize(card.deployed), 0, 1, 0.75)
             + '</div></div>'
             + '<div style="background:#0a0e1a;padding:5px 7px;">'
             + '<button class="btn sm primary" onclick="claimCard(\'' + card.id + '\')" style="width:100%;padding:5px;font-size:13px;border-radius:5px;">Claim Free</button>'
@@ -2495,6 +2559,10 @@ function renderMain() {
     if (totalHas) html += '<button class="btn ' + (splitUniq.length > 0 ? '' : 'primary ') + 'sm" onclick="choosePassiveMode(\'total\')">S' + pcTotal + '</button>';
     html += '</div></div>';
   }
+
+  // Split: everything above is the pinned action pane; board content goes below
+  const actHtml = html;
+  html = '';
 
   // Ready abilities panel for the viewing player
   const readyAbilities = [];
@@ -2584,27 +2652,24 @@ function renderMain() {
       const showBtn = isCurrent && G.phase === 'buy' && !purchased;
       const alreadyOwned = cp.sectors[colony.sector] && cp.sectors[colony.sector].colonyLocked;
       const colonyBuyBtn = showBtn ? '<button class="btn sm ' + (canBuy?'primary':'') + '" ' + (canBuy?'':'disabled') + ' onclick="buyColony(' + colony.sector + ')" style="width:100%;padding:5px;font-size:13px;border-radius:5px;">Buy</button>' : '';
-      html += '<div class="shop-card" style="min-width:108px;max-width:108px;flex-shrink:0;border-radius:12px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;opacity:' + (purchased?'0.55':'1') + ';">'
+      html += '<div class="shop-card" style="min-width:108px;max-width:108px;flex-shrink:0;border-radius:12px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.65);border:1.5px solid rgba(140,40,200,0.75);display:flex;flex-direction:column;opacity:' + (purchased?'0.55':'1') + ';">'
         // Artwork area
-        + '<div style="background:linear-gradient(160deg,#1a0a28 0%,#2d1040 50%,#0d0818 100%);padding:7px 7px 5px;position:relative;flex:1;min-height:72px;display:flex;flex-direction:column;justify-content:flex-end;">'
-        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
-        // Cost top-left
-        + '<div style="position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;font-family:\'Bebas Neue\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 5px rgba(0,0,0,0.5);">' + colony.cost + '</div>'
-        // Sector top-right
-        + '<div style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + colony.sector + '</div>'
-        + '<div style="text-align:center;font-size:31px;margin-bottom:2px;">🌍</div>'
-        + '<div style="background:#1a0a2d;margin:0 -7px -5px;padding:4px 6px;text-align:center;">'
-        + '<div style="font-size:10px;font-weight:700;color:#e0e0e0;">Colony Card</div>'
-        + '<div style="font-size:9px;color:#8877bb;">S' + colony.sector + ' · Locks sector</div>'
+        + '<div style="background:url(\'./red_space_upsplash.jpg\') center/cover no-repeat;padding:7px 7px 0;position:relative;flex:1;min-height:82px;display:flex;flex-direction:column;justify-content:flex-end;">'
+        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.9) 1px,transparent 1px);background-size:11px 11px;opacity:0.1;pointer-events:none;"></div>'
+        // Cost circle top-left
+        + '<div style="position:absolute;top:5px;left:5px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;font-weight:900;font-family:\'Orbitron\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 6px rgba(0,0,0,0.5);">' + colony.cost + '</div>'
+        // Sector circle top-right
+        + '<div style="position:absolute;top:5px;right:5px;width:34px;height:34px;border-radius:50%;background:#222;border:2px solid #a060d0;display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;font-weight:800;font-family:\'Orbitron\',sans-serif;color:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.7);">' + colony.sector + '</div>'
+        // Name bar
+        + '<div style="background:#030a1a;margin:0 -7px;padding:3px 6px;text-align:center;border-top:1px solid rgba(140,40,200,0.75);height:32px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;overflow:hidden;">'
+        + '<div style="font-size:10px;font-weight:700;color:#e8e8e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">Colony Card</div>'
+        + '<div style="font-size:8px;color:#a060d0;font-weight:600;letter-spacing:0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">S' + colony.sector + ' · Locks sector</div>'
         + '</div>'
         + '</div>'
-        // VP reward — purple (same height as station reward)
-        + '<div style="background:#2d1a4a;padding:6px 7px;display:flex;align-items:center;justify-content:center;gap:3px;min-height:60px;border-top:1px solid rgba(255,255,255,0.08);">'
-        + rewardIcons({vp:colony.vp}, 16)
-        + '</div>'
-        // Owned/buy
-        + '<div style="background:#0a0e1a;padding:5px 7px;">'
-        + (purchased ? '<div style="font-size:10px;color:var(--text2);text-align:center;">Owned by ' + purchased + '</div>' : colonyBuyBtn)
+        // VP reward + buy button — single purple section matching station(60)+deployed(34) height
+        + '<div style="background:url(Purple_Card.png) center/cover no-repeat;padding:6px 7px 5px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:94px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+        + '<div style="display:flex;align-items:center;justify-content:center;gap:3px;flex:1;width:100%;">' + rewardIcons({vp:colony.vp}, 16) + '</div>'
+        + '<div style="width:100%;">' + (purchased ? '<div style="font-size:10px;color:rgba(255,255,255,0.7);text-align:center;">Owned by ' + purchased + '</div>' : colonyBuyBtn) + '</div>'
         + '</div>'
         + '</div>';
     });
@@ -2626,39 +2691,34 @@ function renderMain() {
       const canBuy = canBuyAny && !scottPlaceMode && cp.credits >= card.cost && !sectorLocked && !filterBlocked;
       const showBtn = canBuyAny && !scottPlaceMode;
       const buyBtn = showBtn ? (sectorLocked ? '<span style="font-size:10px;color:#8877bb;padding:2px 4px;">Colony locked</span>' : '<button class="btn sm ' + (canBuy ? 'primary' : '') + '" ' + (canBuy ? '' : 'disabled') + ' onclick="buyCard(\'' + card.id + '\')" style="padding:3px 8px;font-size:11px;">Buy</button>') : '';
-      const artBg = ['linear-gradient(160deg,#0a1628 0%,#1a2a5c 50%,#0d1f3c 100%)',
-                     'linear-gradient(160deg,#0d1a0d 0%,#1a3d1a 50%,#0a1a0a 100%)',
-                     'linear-gradient(160deg,#1a0a28 0%,#3d1a5c 50%,#1a0d3c 100%)'][lvl-1];
-      const nameBarBg = ['#0a1a3a','#0a1a0a','#1a0a2d'][lvl-1];
+      const shopTheme = getClassTheme(card.type, card.level);
       const shipBuyBtn = showBtn ? (sectorLocked ? '<div style="font-size:11px;color:#8877bb;text-align:center;padding:4px 0;">Colony locked</div>' : filterBlocked ? '<div style="font-size:11px;color:#888;text-align:center;padding:4px 0;">Out of range</div>' : '<button class="btn sm ' + (canBuy ? 'primary' : '') + '" ' + (canBuy ? '' : 'disabled') + ' onclick="buyCard(\'' + card.id + '\')" style="width:100%;padding:5px;font-size:13px;margin-top:5px;border-radius:5px;">Buy</button>') : '';
-      html += '<div class="shop-card" style="min-width:108px;max-width:108px;flex-shrink:0;border-radius:12px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;">'
+      html += '<div class="shop-card" style="min-width:108px;max-width:108px;flex-shrink:0;border-radius:12px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.65);border:1.5px solid ' + shopTheme.border + ';display:flex;flex-direction:column;">'
 
         // Artwork area
-        + '<div style="background:' + artBg + ';padding:7px 7px 5px;position:relative;flex:1;min-height:72px;display:flex;flex-direction:column;justify-content:flex-end;">'
+        + '<div style="background:' + shopTheme.gradient + ';padding:7px 7px 0;position:relative;flex:1;min-height:82px;display:flex;flex-direction:column;justify-content:flex-end;">'
         // Stars decoration
-        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.8) 1px,transparent 1px);background-size:12px 12px;opacity:0.15;pointer-events:none;"></div>'
+        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:radial-gradient(circle,rgba(255,255,255,0.9) 1px,transparent 1px);background-size:11px 11px;opacity:0.1;pointer-events:none;"></div>'
         // Cost circle top-left
-        + '<div style="position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;font-family:\'Bebas Neue\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 5px rgba(0,0,0,0.5);">' + card.cost + '</div>'
+        + '<div style="position:absolute;top:5px;left:5px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#F0B000 0%,#CC8800 50%,#7A4800 100%);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;font-weight:900;font-family:\'Orbitron\',Impact,sans-serif;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;box-shadow:inset 0 0 0 2px rgba(255,210,60,0.3),0 2px 6px rgba(0,0,0,0.5);">' + card.cost + '</div>'
         // Sector circle top-right
-        + '<div style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:#555;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#ddd;box-shadow:0 1px 4px rgba(0,0,0,0.5);">' + card.sector + '</div>'
-        // Ship emoji as artwork placeholder
-        + '<div style="text-align:center;font-size:31px;margin-bottom:2px;">🚀</div>'
+        + '<div style="position:absolute;top:5px;right:5px;width:34px;height:34px;border-radius:50%;background:#222;border:2px solid ' + shopTheme.accent + ';display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;font-weight:800;font-family:\'Orbitron\',sans-serif;color:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.7);">' + card.sector + '</div>'
         // Name bar
-        + '<div style="background:' + nameBarBg + ';margin:0 -7px -5px;padding:4px 6px;text-align:center;">'
-        + '<div style="font-size:10px;font-weight:700;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + card.name + '</div>'
-        + '<div style="font-size:9px;color:#8899bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (card.type||'') + '</div>'
+        + '<div style="background:' + shopTheme.nameBg + ';margin:0 -7px;padding:3px 6px;text-align:center;border-top:1px solid ' + shopTheme.border + ';height:32px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;overflow:hidden;">'
+        + '<div style="font-size:' + (card.name.length > 25 ? 6 : card.name.length > 21 ? 7 : card.name.length > 17 ? 8 : card.name.length > 14 ? 9 : 10) + 'px;font-weight:700;color:#e8e8e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">' + card.name + '</div>'
+        + '<div style="font-size:' + ((card.type||'').length > 27 ? 6 : (card.type||'').length > 22 ? 7 : 8) + 'px;color:' + shopTheme.accent + ';font-weight:600;letter-spacing:0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">' + (card.type||'') + '</div>'
         + '</div>'
         + '</div>'
 
         // Station reward — blue or green for green abilities (active, fixed height)
-        + '<div style="background:' + (card.station && isGreenAbility(card.station.special || '') ? '#1a3a1a' : '#1a3a5c') + ';padding:6px 7px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;height:60px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
-        + rewardIcons(card.station, shopActiveIconSize(card.station))
+        + '<div style="background:' + (card.station && isGreenAbility(card.station.special || '') ? 'url(Green_Card.png) center/cover no-repeat' : 'url(Blue_Card.png) center/cover no-repeat') + ';padding:6px 7px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;height:60px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+        + rewardIcons(card.station, shopActiveIconSize(card.station), 0, 1.5)
         + '</div>'
 
         // Deployed reward — upside down, passive (fixed height, scales to fit)
-        + '<div style="background:' + (card.deployed && isGreenAbility(card.deployed.special || '') ? '#1a3a1a' : '#5c1a1a') + ';padding:4px 6px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;height:34px;overflow:hidden;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.08);">'
+        + '<div style="background:' + (card.deployed && isGreenAbility(card.deployed.special || '') ? 'url(Green_Card_Passive.png) center/cover no-repeat' : 'url(Red_Card2.png) center/cover no-repeat') + ';padding:4px 6px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;height:34px;overflow:hidden;flex-shrink:0;">'
         + '<div style="transform:rotate(180deg);display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:2px;width:100%;">'
-        + rewardIcons(card.deployed, shopPassiveIconSize(card.deployed))
+        + rewardIcons(card.deployed, shopPassiveIconSize(card.deployed), 0, 1, 0.75)
         + '</div></div>'
 
         // Buy button
@@ -2686,7 +2746,7 @@ function renderMain() {
   // Left 1/4: compact stats
   html += '<div class="sector-stats-panel" style="flex:0 0 68px;display:flex;flex-direction:column;gap:6px;padding-top:2px;height:252px;">';
   html += '<div style="background:var(--surface2);border-radius:8px;padding:7px 4px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
-    + '<svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="csg" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#F0B000"/><stop offset="50%" stop-color="#CC8800"/><stop offset="100%" stop-color="#7A4800"/></radialGradient></defs><circle cx="16" cy="16" r="15" fill="url(#csg)"/><circle cx="16" cy="16" r="15" fill="none" stroke="rgba(255,210,60,0.3)" stroke-width="2.5"/><text x="16" y="21" text-anchor="middle" font-size="13" font-weight="900" fill="#000" stroke="#fff" stroke-width="2.5" paint-order="stroke" font-family="\'Bebas Neue\',Impact,sans-serif">C</text></svg>'
+    + '<svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="csg" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#F0B000"/><stop offset="50%" stop-color="#CC8800"/><stop offset="100%" stop-color="#7A4800"/></radialGradient></defs><circle cx="16" cy="16" r="15" fill="url(#csg)"/><circle cx="16" cy="16" r="15" fill="none" stroke="rgba(255,210,60,0.3)" stroke-width="2.5"/><text x="16" y="21" text-anchor="middle" font-size="13" font-weight="900" fill="#000" stroke="#fff" stroke-width="2.5" paint-order="stroke" font-family="\'Orbitron\',Impact,sans-serif">C</text></svg>'
     + '<div style="font-size:15px;font-weight:700;color:var(--gold);line-height:1.1;">' + vp.credits + '</div>'
     + '<div style="font-size:8px;color:var(--text2);text-transform:uppercase;letter-spacing:0.3px;">Credits</div>'
     + '</div>';
@@ -2696,7 +2756,7 @@ function renderMain() {
     + '<div style="font-size:8px;color:var(--text2);text-transform:uppercase;letter-spacing:0.3px;">Income</div>'
     + '</div>';
   html += '<div style="background:var(--surface2);border-radius:8px;padding:7px 4px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
-    + '<svg width="16" height="20" viewBox="0 0 32 44" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rsg" x1="25%" y1="0%" x2="75%" y2="100%"><stop offset="0%" stop-color="#D8DCF0"/><stop offset="50%" stop-color="#A8AECA"/><stop offset="100%" stop-color="#787E98"/></linearGradient></defs><polygon points="4,27 0,42 10,37" fill="#1A187A"/><polygon points="28,27 32,42 22,37" fill="#1A187A"/><path d="M16,2 C25,2 28,15 28,26 L24,37 L8,37 L4,26 C4,15 7,2 16,2 Z" fill="url(#rsg)" stroke="#0A0A30" stroke-width="1.5"/><circle cx="16" cy="11" r="4.5" fill="#1A18A0" stroke="#0A0A30" stroke-width="1"/><circle cx="14.5" cy="9.5" r="1.5" fill="#6666EE" opacity="0.7"/><path d="M11,38 L9,44 L13,41 L16,44 L19,41 L23,44 L21,38 Z" fill="#FF8C00"/><path d="M13,38.5 L12,43 L16,40.5 L20,43 L19,38.5 Z" fill="#FFCC00"/></svg>'
+    + '<img src="ppt_rocket3.png" style="width:16px;height:20px;object-fit:contain;">'
     + '<div style="font-size:15px;font-weight:700;color:var(--purple);line-height:1.1;">' + vp.vp + '<span style="font-size:8px;font-weight:400;color:var(--text2);">/40</span></div>'
     + '<div style="font-size:8px;color:var(--text2);text-transform:uppercase;letter-spacing:0.3px;">VP</div>'
     + '</div>';
@@ -2710,24 +2770,19 @@ function renderMain() {
     const hlType = sectorHL[s] || null;
     const isHL = hlType === 'blue';
     const stationed = sec.stationed;
-    // Art bg: level 0=starting(dark navy), 1=blue, 2=green, 3=purple
-    const artBgs = [
-      'linear-gradient(160deg,#0a1020 0%,#0d1830 100%)',
-      'linear-gradient(160deg,#0a1628 0%,#1a2a5c 50%,#0d1f3c 100%)',
-      'linear-gradient(160deg,#0d1a0d 0%,#1a3d1a 50%,#0a1a0a 100%)',
-      'linear-gradient(160deg,#1a0a28 0%,#3d1a5c 50%,#1a0d3c 100%)'
-    ];
-    const nameBgs = ['#080e1a','#0a1a3a','#0a1a0a','#1a0a2d'];
+    const sectorTheme = stationed.isColony
+      ? { gradient:"url('./red_space_upsplash.jpg') center/cover no-repeat", nameBg:'#030a1a', border:'rgba(140,40,200,0.75)', accent:'#a060d0' }
+      : getClassTheme(stationed.type, stationed.level);
     const lvl = stationed.level || 0;
-    const artBg = stationed.isColony ? 'linear-gradient(160deg,#1a0a28 0%,#2d1040 50%,#0d0818 100%)' : artBgs[Math.min(lvl,3)];
-    const nameBg = nameBgs[Math.min(lvl,3)];
+    const artBg = sectorTheme.gradient;
+    const nameBg = sectorTheme.nameBg;
     const isGreenSta = stationed.station && isGreenAbility(stationed.station.special || '');
     const isChargedGreenSta = isGreenSta && (stationed.chargeCount || 0) >= (stationed.station.chargeMax || 1);
-    const stationRowBg = stationed.isColony ? '#2d1a4a' : isGreenSta ? (isChargedGreenSta ? 'rgba(74,158,106,0.4)' : '#1a3a1a') : '#1a3a5c';
+    const stationRowBg = stationed.isColony ? 'url(Purple_Card.png) center/cover no-repeat' : isGreenSta ? (isChargedGreenSta ? 'rgba(74,158,106,0.4)' : 'url(Green_Card.png) center/cover no-repeat') : 'url(Blue_Card.png) center/cover no-repeat';
     const stationContent = stationed.isColony
       ? rewardIcons({vp: stationed.colonyVp}, boardActiveIconSize({vp: stationed.colonyVp}))
-      : rewardIcons(stationed.station, boardActiveIconSize(stationed.station), stationed.chargeCount || 0);
-    let wrapperBorderStyle = '';
+      : rewardIcons(stationed.station, boardActiveIconSize(stationed.station), stationed.chargeCount || 0, 1.5);
+    let wrapperBorderStyle = 'border:1.5px solid ' + sectorTheme.border + ';';
     if (hlType === 'yellow') {
       wrapperBorderStyle = 'border:1.5px solid rgba(240,192,64,0.9);box-shadow:0 0 8px rgba(240,192,64,0.3);';
     } else if (hlType === 'green') {
@@ -2739,9 +2794,9 @@ function renderMain() {
     const passiveRows = sec.deployed.map(function(d) {
       const isGreenDep = d.deployed && isGreenAbility(d.deployed.special || '');
       const isChargedGreenDep = isGreenDep && (d.chargeCount || 0) >= (d.deployed.chargeMax || 1);
-      const depRowBg = isGreenDep ? (isChargedGreenDep ? 'rgba(74,158,106,0.4)' : '#1a3a1a') : '#5c1a1a';
+      const depRowBg = isGreenDep ? (isChargedGreenDep ? 'rgba(74,158,106,0.4)' : 'url(Green_Card_Passive.png) center/cover no-repeat') : 'url(Red_Card2.png) center/cover no-repeat';
       return '<div class="sec-passive-row" style="background:' + depRowBg + ';border-top:none;border-bottom:1px solid rgba(255,255,255,0.08);">'
-        + rewardIcons(d.deployed, boardPassiveIconSize(d.deployed), d.chargeCount || 0)
+        + rewardIcons(d.deployed, boardPassiveIconSize(d.deployed), d.chargeCount || 0, 1, 0.75)
         + '</div>';
     }).join('');
     html += '<div class="sector-wrapper ' + (isHL ? 'highlighted' : '') + '" style="' + wrapperBorderStyle + '">'
@@ -2750,17 +2805,19 @@ function renderMain() {
       + '<div class="sec-art" style="background:' + artBg + ';">'
       + '<div class="sec-stars"></div>'
       + (stationed.cost ? '<div class="sec-cost">' + stationed.cost + '</div>' : '')
-      + '<div class="sec-num">' + s + '</div>'
-      + '<div class="sec-ship-icon">' + (stationed.isColony ? '🌍' : '🚀') + '</div>'
-      + '<div class="sec-namebar" style="background:' + nameBg + ';">'
+      + '<div class="sec-num" style="background:#222;border:2px solid ' + sectorTheme.accent + ';color:#fff;">' + s + '</div>'
+
+      + '<div class="sec-namebar" style="background:' + nameBg + ';border-top:1px solid ' + sectorTheme.border + ';">'
       + '<div class="sec-name">' + (stationed.isColony ? 'Colony Card' : stationed.name) + '</div>'
-      + '<div class="sec-type">' + (stationed.isColony ? 'S' + s + ' · Locked' : (stationed.type||'Starting Card')) + '</div>'
+      + '<div class="sec-type" style="color:' + sectorTheme.accent + ';">' + (stationed.isColony ? 'S' + s + ' · Locked' : (stationed.type||'Starting Card')) + '</div>'
       + '</div>'
       + '</div>'
-      + '<div class="sec-station" style="background:' + stationRowBg + ';">' + stationContent + '</div>'
-      + (stationed.deployed ? '<div class="sec-passive-row" style="background:' + (isGreenAbility(stationed.deployed.special || '') ? '#1a3a1a' : '#5c1a1a') + ';border-top:1px solid rgba(255,255,255,0.08);">'
-        + '<div style="transform:rotate(180deg);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;width:100%;">'
-        + rewardIcons(stationed.deployed, boardPassiveIconSize(stationed.deployed)) + '</div></div>' : '')
+      + (stationed.isColony
+        ? '<div class="sec-station" style="background:' + stationRowBg + ';height:140px;">' + stationContent + '</div>'
+        : '<div class="sec-station" style="background:' + stationRowBg + ';">' + stationContent + '</div>'
+          + (stationed.deployed ? '<div class="sec-passive-row" style="background:' + (isGreenAbility(stationed.deployed.special || '') ? 'url(Green_Card_Passive.png) center/cover no-repeat' : 'url(Red_Card2.png) center/cover no-repeat') + ';border-top:1px solid rgba(255,255,255,0.08);">'
+            + '<div style="transform:rotate(180deg);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;width:100%;">'
+            + rewardIcons(stationed.deployed, boardPassiveIconSize(stationed.deployed), 0, 1, 0.75) + '</div></div>' : ''))
       + '</div>'
       + '</div>';
   }
@@ -2772,12 +2829,15 @@ function renderMain() {
     html += '<div class="log" style="margin-top:8px;">' + G.log.slice(0,6).map(function(l){ return '<div class="log-entry">' + l + '</div>'; }).join('') + '</div>';
   }
 
+  const ap = document.getElementById('action-pane');
+  ap.innerHTML = actHtml;
+  ap.classList.toggle('has-content', actHtml.trim().length > 0);
   document.getElementById('main-content').innerHTML = html;
   setMobileZoom();
 }
 
 // ─── AUDIO ───────────────────────────────────────────────────────────────────
-const bgAudio = new Audio('./3.mp3');
+const bgAudio = new Audio('./' + (localStorage.getItem('sb_song') ?? '3.mp3'));
 bgAudio.loop = true;
 bgAudio.volume = (parseInt(localStorage.getItem('sb_musicVol') ?? '40')) / 100;
 let musicPlaying = false;
@@ -2785,8 +2845,10 @@ let musicPlaying = false;
 function updateMusicToggleLabel() {
   const icon  = document.getElementById('ingame-music-icon');
   const label = document.getElementById('ingame-music-label');
+  const slbl  = document.getElementById('ingame-song-label');
   if (icon)  icon.textContent  = musicPlaying ? '🔊' : '🔇';
   if (label) label.textContent = musicPlaying ? 'Music: On' : 'Music: Off';
+  if (slbl)  slbl.textContent  = 'Song: ' + (SONGS.find(s => s.file === currentSong)?.label ?? currentSong);
 }
 
 function toggleMusic() {
