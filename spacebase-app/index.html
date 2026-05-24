@@ -2917,6 +2917,60 @@ if ('serviceWorker' in navigator) {
 }
 
 // ─── DYNAMIC MOBILE ZOOM ─────────────────────────────────────────────────────
+
+// Detect whether the browser honours CSS zoom for block/flex elements.
+// Older iOS Safari (< 17) does not, so we fall back to transform: scale().
+const CSS_ZOOM_OK = (() => {
+  try {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;top:-9999px;width:100px;zoom:0.5;display:block;pointer-events:none;';
+    document.body.appendChild(t);
+    const ok = t.getBoundingClientRect().width < 80;
+    t.remove();
+    return ok;
+  } catch(e) { return false; }
+})();
+
+// transform: scale() fallback — called when CSS zoom is not supported.
+// Injects scale-based CSS into <style id="mz"> and applies negative margins
+// via JS to collapse the layout space that zoom would have shrunk.
+function applyMobileTransforms(sectorSz, orientation) {
+  const mz = document.getElementById('mz');
+  if (!mz) return;
+  const mq = orientation === 'portrait'
+    ? '(orientation: portrait) and (max-width: 600px)'
+    : '(orientation: landscape) and (max-height: 500px)';
+  // Suppress transitions so initial sizing is instant, and override the
+  // zoom-era peek scale (2.4 compounded with zoom≈1×) with a direct scale(1.0).
+  mz.textContent = `@media ${mq} {
+    .shop-card, .sector-wrapper { transition: none !important; }
+    .sector-wrapper { transform: scale(${sectorSz}); transform-origin: top left; }
+    .shop-card        { transform: scale(0.41); transform-origin: top left; }
+    .shop-card:hover,
+    .shop-card.peek   { transform: scale(1.0); transform-origin: top left; z-index: 10; }
+    .sector-stats-panel { transform: scale(0.5); transform-origin: top left; }
+    .dice-zone          { transform: scale(0.667); transform-origin: top left; }
+  }`;
+  // Measure actual heights then apply negative margins to collapse layout space.
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.sector-wrapper').forEach(el => {
+      el.style.marginRight  = Math.round(175 * (sectorSz - 1)) + 'px';
+      el.style.marginBottom = Math.round(el.offsetHeight * (sectorSz - 1)) + 'px';
+    });
+    document.querySelectorAll('.shop-card').forEach(el => {
+      el.style.marginRight  = Math.round(108 * (0.41 - 1)) + 'px';
+      el.style.marginBottom = Math.round(el.offsetHeight * (0.41 - 1)) + 'px';
+    });
+    if (orientation === 'portrait') {
+      const sp = document.querySelector('.sector-stats-panel');
+      if (sp) sp.style.marginBottom = Math.round(sp.offsetHeight * (0.5 - 1)) + 'px';
+    }
+    document.querySelectorAll('.dice-zone').forEach(el => {
+      el.style.marginBottom = Math.round(el.offsetHeight * (0.667 - 1)) + 'px';
+    });
+  });
+}
+
 function setMobileZoom() {
   const mz = document.getElementById('mz');
   if (!mz) return;
@@ -2929,10 +2983,14 @@ function setMobileZoom() {
     // floor the cell width so 6 cells + 5×3px gaps always fit without overflow
     const cellW = Math.floor((avail - 15) / 6);
     const sz = (cellW / 175).toFixed(4);
-    mz.textContent = `
-      @media (orientation: portrait) and (max-width: 600px) {
-        .sector-wrapper { zoom: ${sz} !important; }
-      }`;
+    if (CSS_ZOOM_OK) {
+      mz.textContent = `
+        @media (orientation: portrait) and (max-width: 600px) {
+          .sector-wrapper { zoom: ${sz} !important; }
+        }`;
+    } else {
+      applyMobileTransforms(parseFloat(sz), 'portrait');
+    }
   } else if (landscape) {
     // Measure the actual container width; fall back to estimated value if not yet rendered
     const el = document.querySelector('.sectors-container');
@@ -2940,10 +2998,14 @@ function setMobileZoom() {
     // floor the cell width so 12 cells + 11×3px gaps always fit without overflow
     const cellW = Math.floor((avail - 33) / 12);
     const sz = (cellW / 175).toFixed(4);
-    mz.textContent = `
-      @media (orientation: landscape) and (max-height: 500px) {
-        .sector-wrapper { zoom: ${sz} !important; }
-      }`;
+    if (CSS_ZOOM_OK) {
+      mz.textContent = `
+        @media (orientation: landscape) and (max-height: 500px) {
+          .sector-wrapper { zoom: ${sz} !important; }
+        }`;
+    } else {
+      applyMobileTransforms(parseFloat(sz), 'landscape');
+    }
   } else {
     mz.textContent = '';
   }
