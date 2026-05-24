@@ -170,6 +170,9 @@
       justify-content: space-between;
       align-items: center;
     }
+    @media (orientation: portrait) and (max-width: 600px) {
+      #active-player-banner { justify-content: center; gap: 12px; }
+    }
 
     /* Pinned action pane */
     #action-pane {
@@ -2726,7 +2729,6 @@ function renderMain() {
 
   // Sectors (3/4 right) + Stats panel (1/4 left) side by side
   html += '<div class="card" style="margin-top:8px;">';
-  html += '<h2>' + (isCurrent ? 'Your' : vp.name + "'s") + ' Sectors</h2>';
   if (G.players.length > 1) {
     const btnStyle = 'background:var(--surface2);border:0.5px solid var(--border);border-radius:6px;color:var(--text);font-size:16px;cursor:pointer;padding:5px 14px;line-height:1;';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:-2px 0 8px;">';
@@ -2920,19 +2922,21 @@ function applyMobileTransforms(sectorSz, orientation) {
   const mq = orientation === 'portrait'
     ? '(orientation: portrait) and (max-width: 600px)'
     : '(orientation: landscape) and (max-height: 500px)';
-  // Inject transform CSS. Suppress transitions so initial sizing is instant.
-  // Override the legacy peek scale(2.4) — that was designed to compound with
-  // zoom(0.41); with transform-only, peek at scale(1.0) shows the full card.
+  // Inject transform CSS. Override the legacy peek scale(2.4) — that was
+  // designed to compound with zoom(0.41); with transform-only we instead
+  // translate the peeked card by -29.5% in X and Y so it expands centered
+  // over its small footprint rather than growing right and down.
+  // translate% is relative to the element's own 108px × H dimensions:
+  //   offset = -(0.5 - 0.41/2) = -0.295 ≈ -29.5%  (same in both axes)
   let css = `@media ${mq} {
-    .shop-card, .sector-wrapper { transition: none; }
     .sector-wrapper     { transform: scale(${sectorSz}) !important; transform-origin: top left !important; }
     .shop-card          { transform: scale(0.41) !important; transform-origin: top left !important; }
     .shop-card:hover,
-    .shop-card.peek     { transform: scale(1.0) !important; transform-origin: top left !important; z-index: 10; }`;
+    .shop-card.peek     { transform: translate(-29.5%, -29.5%) scale(1.0) !important; transform-origin: top left !important; z-index: 500; }`;
   if (orientation === 'portrait') {
     css += `
-    .sector-stats-panel { transform: scale(0.5) !important;   transform-origin: top left !important; }
-    .dice-zone          { transform: scale(0.667) !important; transform-origin: top left !important; }`;
+    .sector-stats-panel { transform: scale(0.5) !important;   transform-origin: top center !important; }
+    .dice-zone          { transform: scale(0.667) !important; transform-origin: top center !important; }`;
   }
   css += `\n  }`;
   mz.textContent = css;
