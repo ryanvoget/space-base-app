@@ -395,10 +395,9 @@
 
     /* Portrait mobile: 6 shop cards per row, sectors wrap to 2 rows of 6 */
     @media (orientation: portrait) and (max-width: 600px) {
-      /* Roll dice button and dice result: scale to 2/3 */
-      .dice-zone { zoom: 0.667; }
+      /* Roll dice button and dice result: scaled via JS transform fallback */
 
-      /* Shop: zoom cards to 41% — 6 × 44.3px + 5 × 4px gap ≈ 286px fits most phones */
+      /* Shop: cards sized via JS transform — 6 × 44.3px + 5 × 4px gap ≈ 286px fits most phones */
       .shop-row {
         flex-wrap: wrap !important;
         overflow-x: hidden !important;
@@ -410,7 +409,6 @@
         flex-shrink: 0 !important;
         min-width: 108px !important;
         max-width: 108px !important;
-        zoom: 0.41 !important;
       }
 
       /* Sectors: move stats above, wrap grid to 2 rows of 6 */
@@ -425,7 +423,6 @@
         flex-direction: row !important;
         padding-top: 0 !important;
         gap: 4px !important;
-        zoom: 0.5 !important;
       }
       .sector-stats-panel > div {
         height: 50px !important;
@@ -443,17 +440,16 @@
         gap: 3px !important;
         justify-content: flex-start !important;
       }
-      /* Zoom sectors to 21% — 6 × 36.75px + 5 × 3px gap ≈ 236px fits any phone */
+      /* Sector size set via JS transform — 6 × cellW + 5 × 3px gap fills container */
       .sector-wrapper {
         flex: 0 0 auto !important;
         flex-shrink: 0 !important;
         min-width: 175px !important;
         max-width: 175px !important;
-        zoom: 0.21 !important;
       }
     }
 
-    /* Landscape mobile: same shop zoom, 12 sectors in one row */
+    /* Landscape mobile: same shop sizing, 12 sectors in one row */
     @media (orientation: landscape) and (max-height: 500px) {
       .shop-row {
         flex-wrap: wrap !important;
@@ -466,9 +462,8 @@
         flex-shrink: 0 !important;
         min-width: 108px !important;
         max-width: 108px !important;
-        zoom: 0.41 !important;
       }
-      /* Zoom sectors to 19% — 12 × 33.25px + 11 × 3px gap ≈ 432px fits landscape */
+      /* Sector size set via JS transform — 12 × cellW + 11 × 3px gap fills container */
       .sectors-grid {
         overflow-x: hidden !important;
         gap: 3px !important;
@@ -479,7 +474,6 @@
         flex-shrink: 0 !important;
         min-width: 175px !important;
         max-width: 175px !important;
-        zoom: 0.19 !important;
       }
     }
 
@@ -2916,59 +2910,50 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ─── DYNAMIC MOBILE ZOOM ─────────────────────────────────────────────────────
+// ─── DYNAMIC MOBILE SCALING ──────────────────────────────────────────────────
+// Uses transform: scale() universally (works on all browsers/iOS versions).
+// CSS zoom is avoided entirely to prevent double-scaling on Safari 17+.
 
-// Detect whether the browser honours CSS zoom for block/flex elements.
-// Older iOS Safari (< 17) does not, so we fall back to transform: scale().
-const CSS_ZOOM_OK = (() => {
-  try {
-    const t = document.createElement('div');
-    t.style.cssText = 'position:fixed;top:-9999px;width:100px;zoom:0.5;display:block;pointer-events:none;';
-    document.body.appendChild(t);
-    const ok = t.getBoundingClientRect().width < 80;
-    t.remove();
-    return ok;
-  } catch(e) { return false; }
-})();
-
-// transform: scale() fallback — called when CSS zoom is not supported.
-// Injects scale-based CSS into <style id="mz"> and applies negative margins
-// via JS to collapse the layout space that zoom would have shrunk.
 function applyMobileTransforms(sectorSz, orientation) {
   const mz = document.getElementById('mz');
   if (!mz) return;
   const mq = orientation === 'portrait'
     ? '(orientation: portrait) and (max-width: 600px)'
     : '(orientation: landscape) and (max-height: 500px)';
-  // Suppress transitions so initial sizing is instant, and override the
-  // zoom-era peek scale (2.4 compounded with zoom≈1×) with a direct scale(1.0).
-  mz.textContent = `@media ${mq} {
-    .shop-card, .sector-wrapper { transition: none !important; }
-    .sector-wrapper { transform: scale(${sectorSz}); transform-origin: top left; }
-    .shop-card        { transform: scale(0.41); transform-origin: top left; }
+  // Inject transform CSS. Suppress transitions so initial sizing is instant.
+  // Override the legacy peek scale(2.4) — that was designed to compound with
+  // zoom(0.41); with transform-only, peek at scale(1.0) shows the full card.
+  let css = `@media ${mq} {
+    .shop-card, .sector-wrapper { transition: none; }
+    .sector-wrapper     { transform: scale(${sectorSz}) !important; transform-origin: top left !important; }
+    .shop-card          { transform: scale(0.41) !important; transform-origin: top left !important; }
     .shop-card:hover,
-    .shop-card.peek   { transform: scale(1.0); transform-origin: top left; z-index: 10; }
-    .sector-stats-panel { transform: scale(0.5); transform-origin: top left; }
-    .dice-zone          { transform: scale(0.667); transform-origin: top left; }
-  }`;
-  // Measure actual heights then apply negative margins to collapse layout space.
-  requestAnimationFrame(() => {
-    document.querySelectorAll('.sector-wrapper').forEach(el => {
-      el.style.marginRight  = Math.round(175 * (sectorSz - 1)) + 'px';
-      el.style.marginBottom = Math.round(el.offsetHeight * (sectorSz - 1)) + 'px';
-    });
-    document.querySelectorAll('.shop-card').forEach(el => {
-      el.style.marginRight  = Math.round(108 * (0.41 - 1)) + 'px';
-      el.style.marginBottom = Math.round(el.offsetHeight * (0.41 - 1)) + 'px';
-    });
-    if (orientation === 'portrait') {
-      const sp = document.querySelector('.sector-stats-panel');
-      if (sp) sp.style.marginBottom = Math.round(sp.offsetHeight * (0.5 - 1)) + 'px';
-    }
+    .shop-card.peek     { transform: scale(1.0) !important; transform-origin: top left !important; z-index: 10; }`;
+  if (orientation === 'portrait') {
+    css += `
+    .sector-stats-panel { transform: scale(0.5) !important;   transform-origin: top left !important; }
+    .dice-zone          { transform: scale(0.667) !important; transform-origin: top left !important; }`;
+  }
+  css += `\n  }`;
+  mz.textContent = css;
+  // Measure original heights synchronously (transform doesn't affect offsetHeight,
+  // so we get the unscaled value we need) and apply negative margins to collapse
+  // the layout space that zoom would have shrunk automatically.
+  document.querySelectorAll('.sector-wrapper').forEach(el => {
+    el.style.marginRight  = Math.round(175 * (sectorSz - 1)) + 'px';
+    el.style.marginBottom = Math.round(el.offsetHeight * (sectorSz - 1)) + 'px';
+  });
+  document.querySelectorAll('.shop-card').forEach(el => {
+    el.style.marginRight  = Math.round(108 * (0.41 - 1)) + 'px';
+    el.style.marginBottom = Math.round(el.offsetHeight * (0.41 - 1)) + 'px';
+  });
+  if (orientation === 'portrait') {
+    const sp = document.querySelector('.sector-stats-panel');
+    if (sp) sp.style.marginBottom = Math.round(sp.offsetHeight * (0.5 - 1)) + 'px';
     document.querySelectorAll('.dice-zone').forEach(el => {
       el.style.marginBottom = Math.round(el.offsetHeight * (0.667 - 1)) + 'px';
     });
-  });
+  }
 }
 
 function setMobileZoom() {
@@ -2982,32 +2967,21 @@ function setMobileZoom() {
     const avail = (el && el.offsetWidth > 0) ? el.offsetWidth : (window.innerWidth - 48);
     // floor the cell width so 6 cells + 5×3px gaps always fit without overflow
     const cellW = Math.floor((avail - 15) / 6);
-    const sz = (cellW / 175).toFixed(4);
-    if (CSS_ZOOM_OK) {
-      mz.textContent = `
-        @media (orientation: portrait) and (max-width: 600px) {
-          .sector-wrapper { zoom: ${sz} !important; }
-        }`;
-    } else {
-      applyMobileTransforms(parseFloat(sz), 'portrait');
-    }
+    applyMobileTransforms(parseFloat((cellW / 175).toFixed(4)), 'portrait');
   } else if (landscape) {
     // Measure the actual container width; fall back to estimated value if not yet rendered
     const el = document.querySelector('.sectors-container');
     const avail = (el && el.offsetWidth > 0) ? el.offsetWidth : (window.innerWidth - 124);
     // floor the cell width so 12 cells + 11×3px gaps always fit without overflow
     const cellW = Math.floor((avail - 33) / 12);
-    const sz = (cellW / 175).toFixed(4);
-    if (CSS_ZOOM_OK) {
-      mz.textContent = `
-        @media (orientation: landscape) and (max-height: 500px) {
-          .sector-wrapper { zoom: ${sz} !important; }
-        }`;
-    } else {
-      applyMobileTransforms(parseFloat(sz), 'landscape');
-    }
+    applyMobileTransforms(parseFloat((cellW / 175).toFixed(4)), 'landscape');
   } else {
     mz.textContent = '';
+    // Clear any inline fallback margins when not in mobile layout
+    document.querySelectorAll('.sector-wrapper, .shop-card, .sector-stats-panel, .dice-zone').forEach(el => {
+      el.style.marginRight = '';
+      el.style.marginBottom = '';
+    });
   }
 }
 window.addEventListener('DOMContentLoaded', setMobileZoom);
